@@ -190,7 +190,8 @@ void cltk_func_setenv(cltk_func func, int dim, size_t* global_size, size_t *loca
 
 void cltk_func_setarg(cltk_func func, int arg_size, void *arg_ptr)
 {
-    if(arg_size > 8){
+    cltk_buffer *tk_buf = (cltk_buffer*)arg_ptr;
+    if(arg_size == sizeof(cltk_buffer) && tk_buf->signature == CLTK_SIGNATURE){
         _cltk_buffer *buffer = ((cltk_buffer*)arg_ptr)->mem;
         CLTK_CL(_cltk_err = clSetKernelArg(func->kernel, func->arg_index, sizeof(cl_mem), &(buffer->memory)), (""));
     }
@@ -225,8 +226,8 @@ cltk_buffer cltk_buffer_alloc(cltk_context ctx, int buf_size)
     cltk_buffer buffer;
     CLTK_CL( cl_buf = clCreateBuffer(ctx->context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, buf_size, NULL, &_cltk_err), (""));
     if(cl_buf){
+        buffer.signature = CLTK_SIGNATURE;
         buffer.mem = (cltk_mem)calloc(1, sizeof(_cltk_buffer));
-        buffer.mem->signature = 0x5167924F;
         buffer.mem->ctx = ctx;
         buffer.mem->memory = cl_buf;
         buffer.mem->size = buf_size;

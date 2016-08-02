@@ -4,6 +4,8 @@
 #include <CL/cl.h>
 #include "cltk.h"
 
+#define CLTK_SIGNATURE      0x6B746C63
+
 typedef struct _cltk_context{
     cl_context              context;
     cl_command_queue        queue;
@@ -24,7 +26,6 @@ typedef struct _cltk_func{
 } _cltk_func;
 
 typedef struct _cltk_buffer{
-    int                     signature;
     cl_mem                  memory;
     cltk_context            ctx;
     void                    *hostptr;

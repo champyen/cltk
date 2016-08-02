@@ -39,7 +39,7 @@ typedef struct _cltk_lib*               cltk_lib;
 typedef struct _cltk_func*              cltk_func;
 typedef struct _cltk_buffer*            cltk_mem;
 typedef struct {
-    long long           dummy;
+    long long           signature;
     cltk_mem            mem;
 } cltk_buffer;
 
