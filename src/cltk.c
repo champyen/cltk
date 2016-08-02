@@ -117,6 +117,7 @@ cltk_context cltk_context_create(void)
 
 void cltk_context_destroy(cltk_context ctx)
 {
+    CLTK_CL(_cltk_err = clReleaseCommandQueue(ctx->queue), (""));
     CLTK_CL(_cltk_err = clReleaseContext(ctx->context), (""));
     free(ctx);
 }
