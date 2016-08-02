@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#define _ARGS_HANDLE(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _A, _B, _C, _D, _E, _F, N, ...) N
+#define _ARGS_HANDLE(_0, _1, _2, _3, _4, _5, _6, _7, _8, _9, _A, _B, _C, _D, _E, _F, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _1A, _1B, _1C, _1D, _1E, _1F, N, ...) N
 
 #define CLTK_SET_ARG(func,x)    { cltk_func_setarg(func, sizeof(x), &x); }
 
@@ -25,10 +25,28 @@ extern "C" {
 #define _ARG_D(func,x, ...) CLTK_SET_ARG(func,x) _ARG_C(func,__VA_ARGS__)
 #define _ARG_E(func,x, ...) CLTK_SET_ARG(func,x) _ARG_D(func,__VA_ARGS__)
 #define _ARG_F(func,x, ...) CLTK_SET_ARG(func,x) _ARG_E(func,__VA_ARGS__)
+#define _ARG_10(func,x, ...) CLTK_SET_ARG(func,x) _ARG_F(func,__VA_ARGS__)
+#define _ARG_11(func,x, ...) CLTK_SET_ARG(func,x) _ARG_10(func,__VA_ARGS__)
+#define _ARG_12(func,x, ...) CLTK_SET_ARG(func,x) _ARG_11(func,__VA_ARGS__)
+#define _ARG_13(func,x, ...) CLTK_SET_ARG(func,x) _ARG_12(func,__VA_ARGS__)
+#define _ARG_14(func,x, ...) CLTK_SET_ARG(func,x) _ARG_13(func,__VA_ARGS__)
+#define _ARG_15(func,x, ...) CLTK_SET_ARG(func,x) _ARG_14(func,__VA_ARGS__)
+#define _ARG_16(func,x, ...) CLTK_SET_ARG(func,x) _ARG_15(func,__VA_ARGS__)
+#define _ARG_17(func,x, ...) CLTK_SET_ARG(func,x) _ARG_16(func,__VA_ARGS__)
+#define _ARG_18(func,x, ...) CLTK_SET_ARG(func,x) _ARG_17(func,__VA_ARGS__)
+#define _ARG_19(func,x, ...) CLTK_SET_ARG(func,x) _ARG_18(func,__VA_ARGS__)
+#define _ARG_1A(func,x, ...) CLTK_SET_ARG(func,x) _ARG_19(func,__VA_ARGS__)
+#define _ARG_1B(func,x, ...) CLTK_SET_ARG(func,x) _ARG_1A(func,__VA_ARGS__)
+#define _ARG_1C(func,x, ...) CLTK_SET_ARG(func,x) _ARG_1B(func,__VA_ARGS__)
+#define _ARG_1D(func,x, ...) CLTK_SET_ARG(func,x) _ARG_1C(func,__VA_ARGS__)
+#define _ARG_1E(func,x, ...) CLTK_SET_ARG(func,x) _ARG_1D(func,__VA_ARGS__)
+#define _ARG_1F(func,x, ...) CLTK_SET_ARG(func,x) _ARG_1E(func,__VA_ARGS__)
 
 #define CLTK_FUNC_CALL(func, dim, gsize, lsize, ...) { \
     cltk_func_setenv(func, dim, gsize, lsize); \
     _ARGS_HANDLE("ignored", ##__VA_ARGS__, \
+    _ARG_1F, _ARG_1E, _ARG_1D, _ARG_1C, _ARG_1B, _ARG_1A, _ARG_19, _ARG_18, \
+    _ARG_17, _ARG_16, _ARG_15, _ARG_14, _ARG_13, _ARG_12, _ARG_11, _ARG_10, \
     _ARG_F, _ARG_E, _ARG_D, _ARG_C, _ARG_B, _ARG_A, _ARG_9, _ARG_8, \
     _ARG_7, _ARG_6, _ARG_5, _ARG_4, _ARG_3, _ARG_2, _ARG_1, _ARG_0)(func, ##__VA_ARGS__) \
     cltk_func_exec(func); \

@@ -2,7 +2,7 @@
 #include <CL/cl.h>
 #include "cltk.h"
 
-/* example implementation in OpenCL directly */
+/* example implementation in OpenCL directly - lacks of error message and detection */
 void ocl_example(void)
 {
     cl_int cl_err;
