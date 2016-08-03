@@ -55,11 +55,44 @@ extern "C" {
 typedef struct _cltk_context*           cltk_context;
 typedef struct _cltk_lib*               cltk_lib;
 typedef struct _cltk_func*              cltk_func;
-typedef struct _cltk_buffer*            cltk_mem;
+typedef struct _cltk_buffer*            cltk_buf;
+typedef struct _cltk_image*             cltk_img;
+
 typedef struct {
     long long           signature;
-    cltk_mem            mem;
+    cltk_buf            mem;
 } cltk_buffer;
+
+typedef enum{
+    CLTK_SNORM_INT8 = 0x10D0,
+    CLTK_SNORM_INT16,                              //0x10D1
+    CLTK_UNORM_INT8,                               //0x10D2
+    CLTK_UNORM_INT16,                              //0x10D3
+    CLTK_UNORM_SHORT_565,                          //0x10D4
+    CLTK_UNORM_SHORT_555,                          //0x10D5
+    CLTK_UNORM_INT_101010,                         //0x10D6
+    CLTK_SIGNED_INT8,                              //0x10D7
+    CLTK_SIGNED_INT16,                             //0x10D8
+    CLTK_SIGNED_INT32,                             //0x10D9
+    CLTK_UNSIGNED_INT8,                            //0x10DA
+    CLTK_UNSIGNED_INT16,                           //0x10DB
+    CLTK_UNSIGNED_INT32,                           //0x10DC
+    CLTK_HALF_FLOAT,                               //0x10DD
+    CLTK_FLOAT,                                    //0x10DE
+    CLTK_UNORM_INT24
+} cltk_image_unit;
+
+typedef struct {
+    int32_t             width;
+    int32_t             height;
+    int32_t             depth;
+    cltk_image_unit     unit_type;
+} cltk_image_desc;
+
+typedef struct {
+    long long           signature;
+    cltk_img            mem;
+} cltk_image;
 
 cltk_context cltk_context_create(void);
 void cltk_context_destroy(cltk_context);
@@ -78,6 +111,11 @@ cltk_buffer cltk_buffer_alloc(cltk_context, int);
 void cltk_buffer_free(cltk_buffer);
 void *cltk_buffer_map(cltk_buffer);
 void cltk_buffer_unmap(cltk_buffer);
+
+cltk_image cltk_image_alloc(cltk_context, cltk_image_desc*);
+void cltk_image_free(cltk_image);
+void *cltk_image_map(cltk_image);
+void cltk_image_unmap(cltk_image);
 
 #ifdef __cplusplus
 }

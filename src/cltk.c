@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include "cltk_internal.h"
 
-#define _CALL_STR_ARG(_1, _2, N, ...) N
-
 #define CLTK_CL( CLTK_CALL, msg ) { \
     cl_int _cltk_err = CL_SUCCESS; \
     CLTK_CALL; \
@@ -109,16 +107,16 @@ cltk_context cltk_context_create(void)
 {
     cl_device_id devices[8];
     cltk_context ctx = (cltk_context)calloc(1, sizeof(_cltk_context));
-    CLTK_CL(ctx->context = clCreateContextFromType(NULL, CL_DEVICE_TYPE_GPU, NULL, NULL, &_cltk_err), (""));
-    CLTK_CL(_cltk_err = clGetContextInfo(ctx->context, CL_CONTEXT_DEVICES, 8*sizeof(cl_device_id), devices, NULL), (""));
-    CLTK_CL(ctx->queue = clCreateCommandQueue(ctx->context, devices[0], 0, &_cltk_err), (""));
+    CLTK_CL(ctx->context = clCreateContextFromType(NULL, CL_DEVICE_TYPE_GPU, NULL, NULL, &_cltk_err), ("%s\n", __func__));
+    CLTK_CL(_cltk_err = clGetContextInfo(ctx->context, CL_CONTEXT_DEVICES, 8*sizeof(cl_device_id), devices, NULL), ("%s\n", __func__));
+    CLTK_CL(ctx->queue = clCreateCommandQueue(ctx->context, devices[0], 0, &_cltk_err), ("%s\n", __func__));
     return ctx;
 }
 
 void cltk_context_destroy(cltk_context ctx)
 {
-    CLTK_CL(_cltk_err = clReleaseCommandQueue(ctx->queue), (""));
-    CLTK_CL(_cltk_err = clReleaseContext(ctx->context), (""));
+    CLTK_CL(_cltk_err = clReleaseCommandQueue(ctx->queue), ("%s\n", __func__));
+    CLTK_CL(_cltk_err = clReleaseContext(ctx->context), ("%s\n", __func__));
     free(ctx);
 }
 
@@ -135,7 +133,7 @@ cltk_lib cltk_lib_load(cltk_context ctx, char *filename, char *buildopt)
         src_str = (char*)calloc(1, src_len+1);
         fread(src_str, 1, src_len, fptr);
         fclose(fptr);
-        CLTK_CL(program = clCreateProgramWithSource(ctx->context, 1, (const char**)(&src_str), NULL, &_cltk_err), (""));
+        CLTK_CL(program = clCreateProgramWithSource(ctx->context, 1, (const char**)(&src_str), NULL, &_cltk_err), ("%s\n", __func__));
         if(program){
             char *log_dump;
             size_t log_len;
@@ -143,11 +141,11 @@ cltk_lib cltk_lib_load(cltk_context ctx, char *filename, char *buildopt)
             lib = (cltk_lib)calloc(1, sizeof(_cltk_lib));
             lib->program = program;
             lib->ctx = ctx;
-            CLTK_CL(_cltk_err = clGetContextInfo(ctx->context, CL_CONTEXT_DEVICES, 8*sizeof(cl_device_id), devices, NULL), (""));
-            CLTK_CL(_cltk_err = clBuildProgram(lib->program, 1, devices, buildopt, NULL, NULL), (""));
-            CLTK_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &log_len), (""));
+            CLTK_CL(_cltk_err = clGetContextInfo(ctx->context, CL_CONTEXT_DEVICES, 8*sizeof(cl_device_id), devices, NULL), ("%s\n", __func__));
+            CLTK_CL(_cltk_err = clBuildProgram(lib->program, 1, devices, buildopt, NULL, NULL), ("%s\n", __func__));
+            CLTK_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &log_len), ("%s\n", __func__));
             log_dump = (char*)calloc(1, log_len);
-            CLTK_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, log_len, log_dump, NULL), ("") );
+            CLTK_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, log_len, log_dump, NULL), ("%s\n", __func__) );
             printf("build log: %s\n", log_dump);
         }
         free(src_str);
@@ -157,7 +155,7 @@ cltk_lib cltk_lib_load(cltk_context ctx, char *filename, char *buildopt)
 
 void cltk_lib_unload(cltk_lib lib)
 {
-    CLTK_CL(_cltk_err = clReleaseProgram(lib->program), ("") );
+    CLTK_CL(_cltk_err = clReleaseProgram(lib->program), ("%s\n", __func__) );
     free(lib);
 }
 
@@ -177,7 +175,7 @@ cltk_func cltk_func_get(cltk_lib lib, char *funcname)
 void cltk_func_release(cltk_func func)
 {
     if(func){
-        CLTK_CL( _cltk_err = clReleaseKernel(func->kernel), (""));
+        CLTK_CL( _cltk_err = clReleaseKernel(func->kernel), ("%s\n", __func__));
         free(func);
     }
 }
@@ -191,33 +189,33 @@ void cltk_func_setenv(cltk_func func, int dim, size_t* global_size, size_t *loca
 
 void cltk_func_setarg(cltk_func func, int arg_size, void *arg_ptr)
 {
-    cltk_buffer *tk_buf = (cltk_buffer*)arg_ptr;
-    if(arg_size == sizeof(cltk_buffer) && tk_buf->signature == CLTK_SIGNATURE){
+    _cltk_mem *mem_buf = (_cltk_mem*)arg_ptr;
+    if(arg_size == sizeof(_cltk_mem) && (mem_buf->signature == CLTK_BUF_SIGNATURE | mem_buf->signature == CLTK_IMG_SIGNATURE)){
         _cltk_buffer *buffer = ((cltk_buffer*)arg_ptr)->mem;
-        CLTK_CL(_cltk_err = clSetKernelArg(func->kernel, func->arg_index, sizeof(cl_mem), &(buffer->memory)), (""));
+        CLTK_CL(_cltk_err = clSetKernelArg(func->kernel, func->arg_index, sizeof(cl_mem), &(buffer->memory)), ("%s\n", __func__));
     }
     else{
-        CLTK_CL(_cltk_err = clSetKernelArg(func->kernel, func->arg_index, arg_size, arg_ptr), (""));
+        CLTK_CL(_cltk_err = clSetKernelArg(func->kernel, func->arg_index, arg_size, arg_ptr), ("%s\n", __func__));
     }
     func->arg_index++;
 }
 
 void cltk_func_exec(cltk_func func)
 {
-    CLTK_CL(_cltk_err = clEnqueueNDRangeKernel(func->ctx->queue, func->kernel, func->dimension, 0, func->global, NULL, 0, NULL, NULL), (""));
-    CLTK_CL(_cltk_err = clFinish(func->ctx->queue), (""));
+    CLTK_CL(_cltk_err = clEnqueueNDRangeKernel(func->ctx->queue, func->kernel, func->dimension, 0, func->global, NULL, 0, NULL, NULL), ("%s\n", __func__));
+    CLTK_CL(_cltk_err = clFinish(func->ctx->queue), ("%s\n", __func__));
     func->arg_index = 0;
 }
 
 void cltk_func_async_exec(cltk_func func)
 {
-    CLTK_CL(_cltk_err = clEnqueueNDRangeKernel(func->ctx->queue, func->kernel, func->dimension, 0, func->global, NULL, 0, NULL, NULL), (""));
-    CLTK_CL(_cltk_err = clFlush(func->ctx->queue), (""));
+    CLTK_CL(_cltk_err = clEnqueueNDRangeKernel(func->ctx->queue, func->kernel, func->dimension, 0, func->global, NULL, 0, NULL, NULL), ("%s\n", __func__));
+    CLTK_CL(_cltk_err = clFlush(func->ctx->queue), ("%s\n", __func__));
 }
 
 void cltk_func_wait(cltk_func func)
 {
-    CLTK_CL(_cltk_err = clFinish(func->ctx->queue), (""));
+    CLTK_CL(_cltk_err = clFinish(func->ctx->queue), ("%s\n", __func__));
     func->arg_index = 0;
 }
 
@@ -225,40 +223,100 @@ cltk_buffer cltk_buffer_alloc(cltk_context ctx, int buf_size)
 {
     cl_mem cl_buf = NULL;
     cltk_buffer buffer;
-    CLTK_CL( cl_buf = clCreateBuffer(ctx->context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, buf_size, NULL, &_cltk_err), (""));
+    CLTK_CL( cl_buf = clCreateBuffer(ctx->context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, buf_size, NULL, &_cltk_err), ("%s\n", __func__));
     if(cl_buf){
-        buffer.signature = CLTK_SIGNATURE;
-        buffer.mem = (cltk_mem)calloc(1, sizeof(_cltk_buffer));
-        buffer.mem->ctx = ctx;
-        buffer.mem->memory = cl_buf;
-        buffer.mem->size = buf_size;
+        buffer.signature = CLTK_BUF_SIGNATURE;
+        cltk_buf buf = (cltk_buf)calloc(1, sizeof(_cltk_buffer));
+        buf->ctx = ctx;
+        buf->memory = cl_buf;
+        buf->size = buf_size;
+        buffer.mem = buf;
     }
     return buffer;
 }
 
 void cltk_buffer_free(cltk_buffer buffer)
 {
-    if(buffer.mem){
+    cltk_buf buf = buffer.mem;
+    if(buf){
         cltk_buffer_unmap(buffer);
-        CLTK_CL(_cltk_err = clReleaseMemObject(buffer.mem->memory), (""));
-        free(buffer.mem);
+        CLTK_CL(_cltk_err = clReleaseMemObject(buf->memory), ("%s\n", __func__));
+        free(buf);
     }
 }
 
 void* cltk_buffer_map(cltk_buffer buffer)
 {
-    if(buffer.mem->is_mapped == 0){
-        CLTK_CL(buffer.mem->hostptr = clEnqueueMapBuffer(buffer.mem->ctx->queue, buffer.mem->memory, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, buffer.mem->size, 0, NULL, NULL, &_cltk_err), (""));
-        buffer.mem->is_mapped = 1;
+    cltk_buf buf = buffer.mem;
+    if(buf->is_mapped == 0){
+        CLTK_CL(buf->hostptr = clEnqueueMapBuffer(buf->ctx->queue, buf->memory, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, buf->size, 0, NULL, NULL, &_cltk_err), ("%s\n", __func__));
+        buf->is_mapped = 1;
     }
-    return buffer.mem->hostptr;
+    return buf->hostptr;
 }
 
 void cltk_buffer_unmap(cltk_buffer buffer)
 {
-    if(buffer.mem && buffer.mem->is_mapped){
-        CLTK_CL(_cltk_err = clEnqueueUnmapMemObject(buffer.mem->ctx->queue, buffer.mem->memory, buffer.mem->hostptr, 0, NULL, NULL), (""));
-        buffer.mem->is_mapped = 0;
-        buffer.mem->hostptr = NULL;
+    cltk_buf buf = buffer.mem;
+    if(buf && buf->is_mapped){
+        CLTK_CL(_cltk_err = clEnqueueUnmapMemObject(buf->ctx->queue, buf->memory, buf->hostptr, 0, NULL, NULL), ("%s\n", __func__));
+        buf->is_mapped = 0;
+        buf->hostptr = NULL;
+    }
+}
+
+cltk_image cltk_image_alloc(cltk_context ctx, cltk_image_desc* desc)
+{
+    cltk_image image;
+    image.signature = CLTK_IMG_SIGNATURE;
+
+    cl_mem cl_img = NULL;
+    cl_image_format img_fmt = {CL_INTENSITY, desc->unit_type};
+    CLTK_CL(cl_img = clCreateImage2D(ctx->context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, &img_fmt, desc->width, desc->height, 0, NULL, &_cltk_err), ("%s\n", __func__));
+    if(cl_img){
+        cltk_img img = (cltk_img)calloc(1, sizeof(_cltk_image));
+        img->ctx = ctx;
+        img->memory = cl_img;
+        img->width = desc->width;
+        img->height = desc->height;
+        CLTK_CL( _cltk_err = clGetImageInfo(cl_img, CL_IMAGE_ELEMENT_SIZE, sizeof(size_t), &(img->unit_size), NULL), ("%s\n", __func__));
+        CLTK_CL( _cltk_err = clGetImageInfo(cl_img,  CL_IMAGE_ROW_PITCH, sizeof(size_t), &(img->pitch), NULL), ("%s\n", __func__));
+        img->pitch /= img->unit_size;
+
+        image.mem = img;
+    }
+    return image;
+}
+
+void cltk_image_free(cltk_image image)
+{
+    cltk_img img = image.mem;
+    if(img){
+        cltk_image_unmap(image);
+        CLTK_CL(_cltk_err = clReleaseMemObject(img->memory), ("%s\n", __func__));
+        free(img);
+    }
+}
+
+void* cltk_image_map(cltk_image image)
+{
+    cltk_img img = image.mem;
+    if(img->is_mapped == 0){
+        const size_t origin[3] = {0, 0, 0};
+        const size_t region[3] = {img->width, img->height, 1};
+        size_t slice_pitch;
+        CLTK_CL(img->hostptr = clEnqueueMapImage(img->ctx->queue, img->memory, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, origin, region, &(img->pitch), &slice_pitch, 0, NULL, NULL, &_cltk_err), ("%s\n", __func__));
+        img->is_mapped = 1;
+    }
+    return img->hostptr;
+}
+
+void cltk_image_unmap(cltk_image image)
+{
+    cltk_img img = image.mem;
+    if(img->is_mapped){
+        CLTK_CL(_cltk_err = clEnqueueUnmapMemObject(img->ctx->queue, img->memory, img->hostptr, 0, NULL, NULL), ("%s\n", __func__));
+        img->hostptr = NULL;
+        img->is_mapped = 0;
     }
 }
