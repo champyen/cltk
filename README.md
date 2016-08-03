@@ -18,6 +18,6 @@ The fundamental idea of CLTK is to treat each ".cl" file as a ".so" file. Due to
 1. cltk_context - the CLTK instance
 2. cltk_library - .cl file runtime object (similar to a handle returned by dlopen)
 3. cltk_function - CL function object (as function pointer retured by dlsym)
-4. cltk_buffer - buffer object for function target.
+4. cltk_buffer/cltk_image - buffer object for function target.
 
 The main reason of not using OpenCL 2.x is the memory model. (And there are only few runtimes support 2.x) OpenCL 2.x features with Shared Virtual Memory(SVM). But the granularity of SVM support makes programmer difficult to maintain single implementation for all OpenCL platform(or tied to specific platform). IMHO, portibility is an important feature of OpenCL. The original design of OpenCL 1.x provides DSP/FPGA-friendly framework. 
