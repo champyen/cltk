@@ -2,6 +2,27 @@
 #include <CL/cl.h>
 #include "cltk.h"
 
+/* glue code for test() in test.cl */
+void glue_test(cl_command_queue queue, cl_kernel kernel, size_t *gsize, cl_mem buf)
+{
+    cl_int cl_err = CL_SUCCESS;
+    cl_err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &buf);
+
+    cl_err = clEnqueueNDRangeKernel(queue, kernel, 1, 0, gsize, NULL, 0, NULL, NULL);
+    cl_err = clFinish(queue);
+}
+
+/* glue code for test2() in test.cl */
+void glue_test2(cl_command_queue queue, cl_kernel kernel, size_t *gsize, cl_mem buf0, cl_mem buf1)
+{
+    cl_int cl_err = CL_SUCCESS;
+    cl_err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &buf0);
+    cl_err = clSetKernelArg(kernel, 1, sizeof(cl_mem), &buf1);
+
+    cl_err = clEnqueueNDRangeKernel(queue, kernel, 1, 0, gsize, NULL, 0, NULL, NULL);
+    cl_err = clFinish(queue);
+}
+
 /* example implementation in OpenCL directly - lacks of error message and detection */
 void ocl_example(void)
 {
@@ -24,24 +45,28 @@ void ocl_example(void)
     }
     cl_err = clBuildProgram(program, 1, devices, "", NULL, NULL);
     cl_kernel kernel = clCreateKernel(program, "test", &cl_err);
+    cl_kernel kernel2 = clCreateKernel(program, "test2", &cl_err);
     cl_mem buffer = clCreateBuffer(ctx, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, 1024*sizeof(int), NULL, &cl_err);
+    cl_mem buffer2 = clCreateBuffer(ctx, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, 1024*sizeof(int), NULL, &cl_err);
     size_t gsize[3] = {1024, 0, 0 };
 
-    cl_err = clSetKernelArg(kernel, 0, sizeof(cl_mem), &buffer);
-
-    cl_err = clEnqueueNDRangeKernel(queue, kernel, 1, 0, gsize, NULL, 0, NULL, NULL);
-    cl_err = clFinish(queue);
+    glue_test(queue, kernel, gsize, buffer);
+    glue_test2(queue, kernel2, gsize, buffer2, buffer);
 
     int* hostbuf = (int*)clEnqueueMapBuffer(queue, buffer, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, 1024*sizeof(int), 0, NULL, NULL, &cl_err);
+    int* hostbuf2 = (int*)clEnqueueMapBuffer(queue, buffer2, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, 0, 1024*sizeof(int), 0, NULL, NULL, &cl_err);
     for(int idx = 0; idx < 16; idx++)
-        printf("%03X ", hostbuf[idx]);
+        printf("%03X:%03X ", hostbuf[idx], hostbuf2[idx]);
     printf("\n");
     for(int idx = 1024-16; idx < 1024; idx++)
-        printf("%X ", hostbuf[idx]);
+        printf("%X:%0X ", hostbuf[idx], hostbuf2[idx]);
     printf("\n");
     cl_err = clEnqueueUnmapMemObject(queue, buffer, hostbuf, 0, NULL, NULL);
+    cl_err = clEnqueueUnmapMemObject(queue, buffer2, hostbuf2, 0, NULL, NULL);
 
+    clReleaseMemObject(buffer2);
     clReleaseMemObject(buffer);
+    clReleaseKernel(kernel2);
     clReleaseKernel(kernel);
     clReleaseProgram(program);
     clReleaseCommandQueue(queue);
@@ -53,23 +78,30 @@ void cltk_example(void)
 {
     cltk_context ctx = cltk_context_create();
     cltk_buffer buf = cltk_buffer_alloc(ctx, 1024*sizeof(int));
+    cltk_buffer buf2 = cltk_buffer_alloc(ctx, 1024*sizeof(int));
     cltk_lib lib = cltk_lib_load(ctx, "example/test.cl", "");
     cltk_func func = cltk_func_get(lib, "test");
+    cltk_func func2 = cltk_func_get(lib, "test2");
     size_t gsize[3] = {1024, 0, 0 };
 
     CLTK_FUNC_CALL(func, 1, gsize, NULL, buf);
+    CLTK_FUNC_CALL(func2, 1, gsize, NULL, buf2, buf);
 
     int* hostbuf = (int*)cltk_buffer_map(buf);
+    int* hostbuf2 = (int*)cltk_buffer_map(buf2);
     for(int idx = 0; idx < 16; idx++)
-        printf("%03X ", hostbuf[idx]);
+        printf("%03X:%03X ", hostbuf[idx], hostbuf2[idx]);
     printf("\n");
     for(int idx = 1024-16; idx < 1024; idx++)
-        printf("%X ", hostbuf[idx]);
+        printf("%X:%X ", hostbuf[idx], hostbuf2[idx]);
     printf("\n");
     cltk_buffer_unmap(buf);
+    cltk_buffer_unmap(buf2);
 
+    cltk_func_release(func2);
     cltk_func_release(func);
     cltk_lib_unload(lib);
+    cltk_buffer_free(buf2);
     cltk_buffer_free(buf);
     cltk_context_destroy(ctx);
 }
