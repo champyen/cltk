@@ -1,13 +1,22 @@
-CFLAGS = -Wno-deprecated-declarations 
+EXEC = cltk_test
+all: $(EXEC)
 
-cltk_test: cltk_test.o cltk.o
-	$(CC) -o cltk_test cltk_test.o cltk.o -lOpenCL -lm
+CFLAGS  = -I include
+CFLAGS += -Wno-deprecated-declarations
 
-cltk_test.o: example/cltk_test.c
-	$(CC) -c $(CFLAGS) example/cltk_test.c -o ./cltk_test.o -I./include
+LDFLAGS = -lOpenCL -lm
 
-cltk.o: src/cltk.c
-	$(CC) -c $(CFLAGS) src/cltk.c -o ./cltk.o -I./include
+OBJS = \
+	src/cltk.o \
+	example/cltk_test.o
+
+deps =
+%.o: %.c
+	$(CC) $(CFLAGS) -o $@ -MMD -MF $@.d -c $<
+deps += $(OBJS:%.o=%.o.d)
+
+cltk_test: $(OBJS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f cltk_test *.o
+	$(RM) -f $(EXEC) $(OBJS) $(deps)
