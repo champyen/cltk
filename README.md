@@ -2,7 +2,7 @@
 CLTK - CL ToolKit
 
 Simply Your OpenCL program.
-glue-code free OpenCL Programming!
+Glue-code free OpenCL Programming!
 
 OpenCL provides the power of computing. However, even for a simple example, writing host code is boring and messy.
 
@@ -21,3 +21,15 @@ The fundamental idea of CLTK is to treat each ".cl" file as a ".so" file. Due to
 4. cltk_buffer/cltk_image - buffer/image object for kernel function usage.
 
 The main reason of not using OpenCL 2.x is the memory model. (And there are only few runtimes support 2.x) OpenCL 2.x features with Shared Virtual Memory(SVM). But the granularity of SVM support makes programmer difficult to maintain single implementation for all OpenCL platform(or tied to specific platform). IMHO, portibility is an important feature of OpenCL. The original design of OpenCL 1.x provides DSP/FPGA-friendly framework. 
+
+If CLTK doesn't meet your requirements, you can check the following project (I got the list from CF4OCL's page)
+* [CF4OCL](https://fakenmc.github.io/cf4ocl/ "cf4ocl")
+    A well-devloped OpenCL framework. It provides all the power given by OpenCL with better design.
+    For using CF4OCL, you still have to understand OpenCL first.
+* [Simple OpenCL](https://github.com/morousg/simple-opencl "simple-opencl")
+* [OpenCL Utility](https://github.com/Oblomov/CLU "CLU")
+* [Computing Language Utility](https://github.com/Computing-Language-Utility/CLU "CLU")
+    In Computing Language Utility, it provides glue code generator.
+* [OCL-MLA](http://tuxfan.github.io/ocl-mla/ "OCL-MLA")
+* [OpenCL kernel extractor](https://github.com/anyc/ocl-ke "ocl-ke")
+    It is a good utility for dumpping kernel binary
