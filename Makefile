@@ -1,7 +1,7 @@
 CFLAGS = -Wno-deprecated-declarations 
 
 cltk_test: cltk_test.o cltk.o
-	$(CC) -o cltk_test cltk_test.o cltk.o -lOpenCL 
+	$(CC) -o cltk_test cltk_test.o cltk.o -lOpenCL -lm
 
 cltk_test.o: example/cltk_test.c
 	$(CC) -c $(CFLAGS) example/cltk_test.c -o ./cltk_test.o -I./include
