@@ -34,7 +34,9 @@ The main reason of not using OpenCL 2.x is the memory model. (And there are only
 # Building Guide
 0. Currently, CLTK is under development. For convenience, you should use Linux for test CLTK.
 1. please setup an OpenCL runtime, the below package names are used in ubuntu 
-    * package "opencl-headers"
+    * package "ocl-icd-libopencl1" "opencl-headers"
+        - for x86_64 platform : sudo ln -sf /usr/lib/x86_64-linux-gnu/libOpenCL.so.1 /usr/lib/libOpenCL.so
+        - for x86 platform : sudo ln -sf /usr/lib/i386-linux-gnu/libOpenCL.so.1 /usr/lib/libOpenCL.so
     * for AMD GPUs, you should install "mesa-opencl-icd"
         - this package depends on libclc,llvm
         - for better compatibility, newer version is suggested, you can add PPAs of "paulo-miguel-dias/mesa" "paulo-miguel-dias/llvm-snapshot" before your installation.
