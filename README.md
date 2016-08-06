@@ -1,8 +1,8 @@
 # cltk
-CLTK - CL ToolKit
+CLTK - OpenCL ToolKit
 
 Simply Your OpenCL program.
-Glue-code free OpenCL Programming!
+Glue-Code free OpenCL Programming!
 
 OpenCL provides the power of computing. However, even for a simple example, writing host code is boring and messy.
 
@@ -22,6 +22,34 @@ The fundamental idea of CLTK is to treat each ".cl" file as a ".so" file. Due to
 
 The main reason of not using OpenCL 2.x is the memory model. (And there are only few runtimes support 2.x) OpenCL 2.x features with Shared Virtual Memory(SVM). But the granularity of SVM support makes programmer difficult to maintain single implementation for all OpenCL platform(or tied to specific platform). IMHO, portibility is an important feature of OpenCL. The original design of OpenCL 1.x provides DSP/FPGA-friendly framework. 
 
+
+# Building Guide
+0. Currently, CLTK is under development. For convenience, you should use Linux for test CLTK.
+1. please setup an OpenCL runtime, the below package names are used in ubuntu 
+    * package "opencl-headers"
+    * for AMD GPUs, you should install "mesa-opencl-icd"
+        - this package depends on libclc,llvm
+        - for better compatibility, newer version is suggested, you can add PPAs of "paulo-miguel-dias/mesa" "paulo-miguel-dias/llvm-snapshot" before your installation.
+    * for Intel GPUs, you should install "beignet-opencl-icd"
+    * for runtime check and information, please install "clinfo" and launch clinfo command in your shell.
+3. $ make
+    * after this libcltk.so can be used
+4. $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./
+5. $ ./cltk_test
+6. you can see similar output:
+$ ./cltk_test 
+000:001 001:002 002:003 003:004 004:005 005:006 006:007 007:008 008:009 009:00A 00A:00B 00B:00C 00C:00D 00D:00E 00E:00F 00F:010 
+3F0:3F1 3F1:3F2 3F2:3F3 3F3:3F4 3F4:3F5 3F5:3F6 3F6:3F7 3F7:3F8 3F8:3F9 3F9:3FA 3FA:3FB 3FB:3FC 3FC:3FD 3FD:3FE 3FE:3FF 3FF:400 
+ocl_example: CPU log 12M takes 1320953 us
+ocl_example GPU log 12M takes 150645 us
+build log: 
+000:001 001:002 002:003 003:004 004:005 005:006 006:007 007:008 008:009 009:00A 00A:00B 00B:00C 00C:00D 00D:00E 00E:00F 00F:010 
+3F0:3F1 3F1:3F2 3F2:3F3 3F3:3F4 3F4:3F5 3F5:3F6 3F6:3F7 3F7:3F8 3F8:3F9 3F9:3FA 3FA:3FB 3FB:3FC 3FC:3FD 3FD:3FE 3FE:3FF 3FF:400 
+cltk_example CPU log 12M takes 1318090 us
+cltk_example GPU log 12M takes 78607 us
+
+
+# Other Resources
 If CLTK doesn't meet your requirements, you can check the following project (I got the list from CF4OCL's page)
 * [CF4OCL](https://fakenmc.github.io/cf4ocl/ "cf4ocl")
     A well-devloped OpenCL framework. It provides all the power given by OpenCL with better design.
