@@ -1,0 +1,3 @@
+cltk_test
+*.o
+*.o.d
