@@ -39,6 +39,7 @@ The main reason of not using OpenCL 2.x is the memory model. (And there are only
         - this package depends on libclc,llvm
         - for better compatibility, newer version is suggested, you can add PPAs of "paulo-miguel-dias/mesa" "paulo-miguel-dias/llvm-snapshot" before your installation.
     * for Intel GPUs, you should install "beignet-opencl-icd"
+    * for Nvidia GPUs, since nouveau hasn't support OpenCL yet, you have to install official Nvidia runtime. 
     * for runtime check and information, please install "clinfo" and launch clinfo command in your shell.
 3. $ make
     * after this libcltk.so can be used
