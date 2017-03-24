@@ -259,7 +259,8 @@ void cltk_buffer_unmap(cltk_buffer buffer)
 {
     cltk_buf buf = buffer.mem;
     if(buf && buf->is_mapped){
-        CLTK_CL(_cltk_err = clEnqueueUnmapMemObject(buf->ctx->queue, buf->memory, buf->hostptr, 0, NULL, NULL), ("%s\n", __func__));
+        CLTK_CL(_cltk_err = clEnqueueUnmapMemObject(buf->ctx->queue, buf->memory, buf->hostptr, 0, NULL, NULL), ("%s clEnqueueUnmapMemObject\n", __func__));
+        CLTK_CL(_cltk_err = clFinish(buf->ctx->queue), ("%s clFinish\n", __func__));
         buf->is_mapped = 0;
         buf->hostptr = NULL;
     }
@@ -315,7 +316,8 @@ void cltk_image_unmap(cltk_image image)
 {
     cltk_img img = image.mem;
     if(img->is_mapped){
-        CLTK_CL(_cltk_err = clEnqueueUnmapMemObject(img->ctx->queue, img->memory, img->hostptr, 0, NULL, NULL), ("%s\n", __func__));
+        CLTK_CL(_cltk_err = clEnqueueUnmapMemObject(img->ctx->queue, img->memory, img->hostptr, 0, NULL, NULL), ("%s clEnqueueUnmapMemObject\n", __func__));
+        CLTK_CL(_cltk_err = clFinish(buf->ctx->queue), ("%s clFinish\n", __func__));
         img->hostptr = NULL;
         img->is_mapped = 0;
     }
