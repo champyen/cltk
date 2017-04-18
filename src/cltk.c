@@ -90,15 +90,16 @@ static const char* cltk_error_str[] =
     , "CL_INVALID_DEVICE_PARTITION_COUNT"               //  -68
     , "CL_INVALID_PIPE_SIZE"                            //  -69
     , "CL_INVALID_DEVICE_QUEUE"                         //  -70
-    , "CL_UNKNOWN_ERROR_CODE"
+    , "CL_UNKNOWN_ERROR_CODE"							//  -71
 };
 
+#define CLTK_MAX_ERRIDX									70
 
 const char* cltk_error_message(int err)
 {
     int idx = -err;
-    if(idx > 70 || idx < 0)
-        return cltk_error_str[70];
+    if(idx > CLTK_MAX_ERRIDX || idx < 0)
+        return cltk_error_str[CLTK_MAX_ERRIDX+1];
     else
         return cltk_error_str[idx];
 }
@@ -317,7 +318,7 @@ void cltk_image_unmap(cltk_image image)
     cltk_img img = image.mem;
     if(img->is_mapped){
         CLTK_CL(_cltk_err = clEnqueueUnmapMemObject(img->ctx->queue, img->memory, img->hostptr, 0, NULL, NULL), ("%s clEnqueueUnmapMemObject\n", __func__));
-        CLTK_CL(_cltk_err = clFinish(buf->ctx->queue), ("%s clFinish\n", __func__));
+        CLTK_CL(_cltk_err = clFinish(img->ctx->queue), ("%s clFinish\n", __func__));
         img->hostptr = NULL;
         img->is_mapped = 0;
     }
