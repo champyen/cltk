@@ -61,6 +61,10 @@ typedef struct _cltk_image*             cltk_img;
 typedef struct {
     long long           signature;
     cltk_buf            mem;
+    int32_t                 width;
+    int32_t                 height;
+    size_t                  pitch;
+    size_t                  unit_size;
 } cltk_buffer;
 
 typedef enum{
@@ -85,6 +89,10 @@ typedef enum{
 typedef struct {
     long long           signature;
     cltk_img            mem;
+    int32_t                 width;
+    int32_t                 height;
+    size_t                  pitch;
+    size_t                  unit_size;
 } cltk_image;
 
 typedef struct {

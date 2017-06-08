@@ -280,11 +280,11 @@ cltk_image cltk_image_alloc(cltk_context ctx, cltk_image_desc* desc)
         cltk_img img = (cltk_img)calloc(1, sizeof(_cltk_image));
         img->ctx = ctx;
         img->memory = cl_img;
-        img->width = desc->width;
-        img->height = desc->height;
-        CLTK_CL( _cltk_err = clGetImageInfo(cl_img, CL_IMAGE_ELEMENT_SIZE, sizeof(size_t), &(img->unit_size), NULL), ("%s\n", __func__));
-        CLTK_CL( _cltk_err = clGetImageInfo(cl_img,  CL_IMAGE_ROW_PITCH, sizeof(size_t), &(img->pitch), NULL), ("%s\n", __func__));
-        img->pitch /= img->unit_size;
+        image.width = desc->width;
+        image.height = desc->height;
+        CLTK_CL( _cltk_err = clGetImageInfo(cl_img, CL_IMAGE_ELEMENT_SIZE, sizeof(size_t), &(image.unit_size), NULL), ("%s\n", __func__));
+        CLTK_CL( _cltk_err = clGetImageInfo(cl_img,  CL_IMAGE_ROW_PITCH, sizeof(size_t), &(image.pitch), NULL), ("%s\n", __func__));
+        image.pitch /= image.unit_size;
 
         image.mem = img;
     }
@@ -306,9 +306,9 @@ void* cltk_image_map(cltk_image image)
     cltk_img img = image.mem;
     if(img->is_mapped == 0){
         const size_t origin[3] = {0, 0, 0};
-        const size_t region[3] = {img->width, img->height, 1};
+        const size_t region[3] = {image.width, image.height, 1};
         size_t slice_pitch;
-        CLTK_CL(img->hostptr = clEnqueueMapImage(img->ctx->queue, img->memory, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, origin, region, &(img->pitch), &slice_pitch, 0, NULL, NULL, &_cltk_err), ("%s\n", __func__));
+        CLTK_CL(img->hostptr = clEnqueueMapImage(img->ctx->queue, img->memory, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, origin, region, &(image.pitch), &slice_pitch, 0, NULL, NULL, &_cltk_err), ("%s\n", __func__));
         img->is_mapped = 1;
     }
     return img->hostptr;

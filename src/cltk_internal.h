@@ -39,16 +39,16 @@ typedef struct _cltk_image{
     cltk_context            ctx;
     cl_mem                  memory;
     void                    *hostptr;
-    int32_t                 width;
-    int32_t                 height;
-    size_t                  pitch;
-    size_t                  unit_size;
     int32_t                 is_mapped;
 } _cltk_image;
 
 typedef struct {
     int64_t                 signature;
     void*                   _cltk_memptr;
+    int32_t                 width;
+    int32_t                 height;
+    size_t                  pitch;
+    size_t                  unit_size;
 } _cltk_mem;
 
 #endif
