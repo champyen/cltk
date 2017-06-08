@@ -43,7 +43,7 @@ extern "C" {
 #define _ARG_1F(func,x, ...) CLTK_SET_ARG(func,x) _ARG_1E(func,__VA_ARGS__)
 
 #define CLTK_FUNC_CALL(func, dim, gsize, lsize, ...) { \
-    cltk_func_setenv(func, dim, gsize, lsize); \
+    cltk_func_setndr(func, dim, gsize, lsize); \
     _ARGS_HANDLE("ignored", ##__VA_ARGS__, \
     _ARG_1F, _ARG_1E, _ARG_1D, _ARG_1C, _ARG_1B, _ARG_1A, _ARG_19, _ARG_18, \
     _ARG_17, _ARG_16, _ARG_15, _ARG_14, _ARG_13, _ARG_12, _ARG_11, _ARG_10, \
@@ -83,16 +83,17 @@ typedef enum{
 } cltk_image_unit;
 
 typedef struct {
+    long long           signature;
+    cltk_img            mem;
+} cltk_image;
+
+typedef struct {
     int32_t             width;
     int32_t             height;
     int32_t             depth;
     cltk_image_unit     unit_type;
+    void                *img_fmt;
 } cltk_image_desc;
-
-typedef struct {
-    long long           signature;
-    cltk_img            mem;
-} cltk_image;
 
 cltk_context cltk_context_create(void);
 void cltk_context_destroy(cltk_context);
@@ -101,7 +102,7 @@ void cltk_lib_unload(cltk_lib);
 
 cltk_func cltk_func_get(cltk_lib, char*);
 void cltk_func_release(cltk_func);
-void cltk_func_setenv(cltk_func, int, size_t*, size_t*);
+void cltk_func_setndr(cltk_func, int, size_t*, size_t*);
 void cltk_func_setarg(cltk_func, int, void*);
 void cltk_func_exec(cltk_func);
 void cltk_func_async_exec(cltk_func);

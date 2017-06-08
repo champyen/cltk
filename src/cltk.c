@@ -181,7 +181,7 @@ void cltk_func_release(cltk_func func)
     }
 }
 
-void cltk_func_setenv(cltk_func func, int dim, size_t* global_size, size_t *local_size)
+void cltk_func_setndr(cltk_func func, int dim, size_t* global_size, size_t *local_size)
 {
     func->dimension = dim;
     func->global = global_size;
@@ -273,8 +273,9 @@ cltk_image cltk_image_alloc(cltk_context ctx, cltk_image_desc* desc)
     image.signature = CLTK_IMG_SIGNATURE;
 
     cl_mem cl_img = NULL;
-    cl_image_format img_fmt = {CL_INTENSITY, desc->unit_type};
-    CLTK_CL(cl_img = clCreateImage2D(ctx->context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, &img_fmt, desc->width, desc->height, 0, NULL, &_cltk_err), ("%s\n", __func__));
+    cl_image_format default_fmt = {CL_INTENSITY, desc->unit_type};
+    cl_image_format *img_fmt = (desc->img_fmt == NULL) ? &default_fmt : desc->img_fmt;
+    CLTK_CL(cl_img = clCreateImage2D(ctx->context, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE, img_fmt, desc->width, desc->height, 0, NULL, &_cltk_err), ("%s\n", __func__));
     if(cl_img){
         cltk_img img = (cltk_img)calloc(1, sizeof(_cltk_image));
         img->ctx = ctx;
