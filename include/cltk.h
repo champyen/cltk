@@ -123,7 +123,7 @@ void cltk_buffer_unmap(cltk_buffer);
 
 cltk_image cltk_image_alloc(cltk_context, cltk_image_desc*);
 void cltk_image_free(cltk_image);
-void *cltk_image_map(cltk_image);
+void *cltk_image_map(cltk_image, size_t*);
 void cltk_image_unmap(cltk_image);
 
 #ifdef __cplusplus

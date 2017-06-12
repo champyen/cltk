@@ -106,11 +106,22 @@ const char* cltk_error_message(int err)
 
 cltk_context cltk_context_create(void)
 {
-    cl_device_id devices[8];
+    /*
+    cl_device_id device;
+    cl_uint size;
     cltk_context ctx = (cltk_context)calloc(1, sizeof(_cltk_context));
-    CLTK_CL(ctx->context = clCreateContextFromType(NULL, CL_DEVICE_TYPE_GPU, NULL, NULL, &_cltk_err), ("%s\n", __func__));
-    CLTK_CL(_cltk_err = clGetContextInfo(ctx->context, CL_CONTEXT_DEVICES, 8*sizeof(cl_device_id), devices, NULL), ("%s\n", __func__));
-    CLTK_CL(ctx->queue = clCreateCommandQueue(ctx->context, devices[0], 0, &_cltk_err), ("%s\n", __func__));
+    CLTK_CL(ctx->context = clCreateContextFromType(NULL, CL_DEVICE_TYPE_GPU, NULL, NULL, &_cltk_err), ("%s clCreateContextFromType\n", __func__));
+    CLTK_CL(_cltk_err = clGetContextInfo(ctx->context, CL_CONTEXT_DEVICES, 1, &devices, NULL), ("%s clGetContextInfo 1\n", __func__));
+    CLTK_CL(ctx->queue = clCreateCommandQueue(ctx->context, devices[0], 0, &_cltk_err), ("%s clCreateCommandQueue\n", __func__));
+    */
+    cl_platform_id plat_id;
+    cl_device_id dev_id;
+
+    cltk_context ctx = (cltk_context)calloc(1, sizeof(_cltk_context));
+    CLTK_CL(_cltk_err = clGetPlatformIDs(1, &plat_id, NULL), ("%s clGetPlatformIDs\n", __func__));
+    CLTK_CL(_cltk_err = clGetDeviceIDs(plat_id, CL_DEVICE_TYPE_GPU, 1, &dev_id, NULL), ("%s clGetDeviceIDs\n", __func__));
+    CLTK_CL(ctx->context = clCreateContext(NULL, 1, &dev_id, NULL, NULL, &_cltk_err), ("%s clCreateContext\n", __func__));
+    CLTK_CL(ctx->queue = clCreateCommandQueue(ctx->context, dev_id, 0, &_cltk_err), ("%s clCreateCommandQueue\n", __func__));
     return ctx;
 }
 
@@ -285,6 +296,7 @@ cltk_image cltk_image_alloc(cltk_context ctx, cltk_image_desc* desc)
         CLTK_CL( _cltk_err = clGetImageInfo(cl_img, CL_IMAGE_ELEMENT_SIZE, sizeof(size_t), &(image.unit_size), NULL), ("%s\n", __func__));
         CLTK_CL( _cltk_err = clGetImageInfo(cl_img,  CL_IMAGE_ROW_PITCH, sizeof(size_t), &(image.pitch), NULL), ("%s\n", __func__));
         image.pitch /= image.unit_size;
+        printf("%s w[%d] h[%d] p[%d] us[%d]\n", __func__, image.width, image.height, image.pitch, image.unit_size);
 
         image.mem = img;
     }
@@ -301,14 +313,14 @@ void cltk_image_free(cltk_image image)
     }
 }
 
-void* cltk_image_map(cltk_image image)
+void* cltk_image_map(cltk_image image, size_t *pitch)
 {
     cltk_img img = image.mem;
     if(img->is_mapped == 0){
         const size_t origin[3] = {0, 0, 0};
         const size_t region[3] = {image.width, image.height, 1};
         size_t slice_pitch;
-        CLTK_CL(img->hostptr = clEnqueueMapImage(img->ctx->queue, img->memory, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, origin, region, &(image.pitch), &slice_pitch, 0, NULL, NULL, &_cltk_err), ("%s\n", __func__));
+        CLTK_CL(img->hostptr = clEnqueueMapImage(img->ctx->queue, img->memory, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, origin, region, pitch, &slice_pitch, 0, NULL, NULL, &_cltk_err), ("%s\n", __func__));
         img->is_mapped = 1;
     }
     return img->hostptr;
