@@ -106,6 +106,7 @@ typedef struct {
 cltk_context cltk_context_create(void);
 void cltk_context_destroy(cltk_context);
 cltk_lib cltk_lib_load(cltk_context, char*, char*);
+cltk_lib cltk_lib_str_load(cltk_context, char*, char*);
 void cltk_lib_unload(cltk_lib);
 
 cltk_func cltk_func_get(cltk_lib, char*);

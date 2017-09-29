@@ -90,16 +90,16 @@ static const char* cltk_error_str[] =
     , "CL_INVALID_DEVICE_PARTITION_COUNT"               //  -68
     , "CL_INVALID_PIPE_SIZE"                            //  -69
     , "CL_INVALID_DEVICE_QUEUE"                         //  -70
-    , "CL_UNKNOWN_ERROR_CODE"							//  -71
+    , "CL_UNKNOWN_ERROR_CODE"				//  -71
 };
 
-#define CLTK_MAX_ERRIDX									70
+#define CLTK_MAX_ERRIDX					71
 
 const char* cltk_error_message(int err)
 {
     int idx = -err;
     if(idx > CLTK_MAX_ERRIDX || idx < 0)
-        return cltk_error_str[CLTK_MAX_ERRIDX+1];
+        return cltk_error_str[CLTK_MAX_ERRIDX];
     else
         return cltk_error_str[idx];
 }
@@ -132,6 +132,28 @@ void cltk_context_destroy(cltk_context ctx)
     free(ctx);
 }
 
+cltk_lib cltk_lib_str_load(cltk_context ctx, char *src_str, char *buildopt)
+{
+    cltk_lib lib = NULL;
+    cl_program program = NULL;
+    CLTK_CL(program = clCreateProgramWithSource(ctx->context, 1, (const char**)(&src_str), NULL, &_cltk_err), ("%s\n", __func__));
+    if(program){
+        char *log_dump;
+        size_t log_len;
+        cl_device_id devices[8];
+        lib = (cltk_lib)calloc(1, sizeof(_cltk_lib));
+        lib->program = program;
+        lib->ctx = ctx;
+        CLTK_CL(_cltk_err = clGetContextInfo(ctx->context, CL_CONTEXT_DEVICES, 8*sizeof(cl_device_id), devices, NULL), ("%s\n", __func__));
+        CLTK_CL(_cltk_err = clBuildProgram(lib->program, 1, devices, buildopt, NULL, NULL), ("%s\n", __func__));
+        CLTK_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &log_len), ("%s\n", __func__));
+        log_dump = (char*)calloc(1, log_len);
+        CLTK_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, log_len, log_dump, NULL), ("%s\n", __func__) );
+        printf("build log: %s\n", log_dump);
+    }
+    return lib;
+}
+
 cltk_lib cltk_lib_load(cltk_context ctx, char *filename, char *buildopt)
 {
     cltk_lib lib = NULL;
@@ -145,21 +167,7 @@ cltk_lib cltk_lib_load(cltk_context ctx, char *filename, char *buildopt)
         src_str = (char*)calloc(1, src_len+1);
         fread(src_str, 1, src_len, fptr);
         fclose(fptr);
-        CLTK_CL(program = clCreateProgramWithSource(ctx->context, 1, (const char**)(&src_str), NULL, &_cltk_err), ("%s\n", __func__));
-        if(program){
-            char *log_dump;
-            size_t log_len;
-            cl_device_id devices[8];
-            lib = (cltk_lib)calloc(1, sizeof(_cltk_lib));
-            lib->program = program;
-            lib->ctx = ctx;
-            CLTK_CL(_cltk_err = clGetContextInfo(ctx->context, CL_CONTEXT_DEVICES, 8*sizeof(cl_device_id), devices, NULL), ("%s\n", __func__));
-            CLTK_CL(_cltk_err = clBuildProgram(lib->program, 1, devices, buildopt, NULL, NULL), ("%s\n", __func__));
-            CLTK_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &log_len), ("%s\n", __func__));
-            log_dump = (char*)calloc(1, log_len);
-            CLTK_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, log_len, log_dump, NULL), ("%s\n", __func__) );
-            printf("build log: %s\n", log_dump);
-        }
+        lib = cltk_lib_str_load(ctx, src_str, buildopt);
         free(src_str);
     }
     return lib;
@@ -214,7 +222,7 @@ void cltk_func_setarg(cltk_func func, int arg_size, void *arg_ptr)
 
 void cltk_func_exec(cltk_func func)
 {
-    CLTK_CL(_cltk_err = clEnqueueNDRangeKernel(func->ctx->queue, func->kernel, func->dimension, 0, func->global, NULL, 0, NULL, NULL), ("%s\n", __func__));
+    CLTK_CL(_cltk_err = clEnqueueNDRangeKernel(func->ctx->queue, func->kernel, func->dimension, 0, func->global, func->local, 0, NULL, NULL), ("%s\n", __func__));
     CLTK_CL(_cltk_err = clFinish(func->ctx->queue), ("%s\n", __func__));
     func->arg_index = 0;
 }
@@ -318,7 +326,7 @@ void* cltk_image_map(cltk_image image, size_t *pitch)
     cltk_img img = image.mem;
     if(img->is_mapped == 0){
         const size_t origin[3] = {0, 0, 0};
-        const size_t region[3] = {image.width, image.height, 1};
+        const size_t region[3] = {(size_t)image.width, (size_t)image.height, 1};
         size_t slice_pitch;
         CLTK_CL(img->hostptr = clEnqueueMapImage(img->ctx->queue, img->memory, CL_TRUE, CL_MAP_READ | CL_MAP_WRITE, origin, region, pitch, &slice_pitch, 0, NULL, NULL, &_cltk_err), ("%s\n", __func__));
         img->is_mapped = 1;
