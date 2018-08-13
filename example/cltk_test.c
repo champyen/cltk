@@ -124,7 +124,7 @@ void cltk_example(void)
     cltk_context ctx = cltk_context_create();
     cltk_buffer buf = cltk_buffer_alloc(ctx, 1024*sizeof(int));
     cltk_buffer buf2 = cltk_buffer_alloc(ctx, 1024*sizeof(int));
-    cltk_lib lib = cltk_lib_load(ctx, "example/test.cl", "");
+    cltk_lib lib = cltk_lib_load(ctx, "example/test.cl", NULL, "");
     cltk_func func = cltk_func_get(lib, "test");
     cltk_func func2 = cltk_func_get(lib, "test2");
     size_t gsize[3] = {1024, 0, 0 };
