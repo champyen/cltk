@@ -23,11 +23,23 @@ void cltk_image_example(void)
     cltk_buffer buf = cltk_buffer_alloc(ctx, 960*540*3);
     cltk_buffer pos = cltk_buffer_alloc(ctx, sizeof(float)*9);
     float *pos_ptr = (float*)cltk_buffer_map(pos);
-    //TODO: calculate homography matrix
+    #if 0
     pos_ptr[0] = 0.354f;    pos_ptr[1] = 0.385f;
     pos_ptr[2] = 0.646f;    pos_ptr[3] = 0.514f;
     pos_ptr[4] = 0.264f;    pos_ptr[5] = 0.640f;
     pos_ptr[6] = 0.580f;    pos_ptr[7] = 0.829f;
+    #else
+    //HOMOGRAPHY MATRIX
+    pos_ptr[0] = 0.20898;
+    pos_ptr[1] = -0.11845;
+    pos_ptr[2] = 0.354;
+    pos_ptr[3] = 0.06433;
+    pos_ptr[4] = 0.18604;
+    pos_ptr[5] = 0.385;
+    pos_ptr[6] = -0.1258;
+    pos_ptr[7] = -0.10775;
+    pos_ptr[8] = 1.0;
+    #endif
     cltk_buffer_unmap(pos);
 
     cl_image_format img_fmt = { CL_RGBA, CL_UNORM_INT8 };

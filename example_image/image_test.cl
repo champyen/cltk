@@ -12,7 +12,7 @@ __kernel void warp(
     float fy = (float)gidy/(float)get_global_size(1);
     float3 frgb;
 
-    #if 1
+    #if 0
 
     float4 ratio = (float4)((1-fx)*(1-fy), fx*(1-fy), (1-fx)*fy, fx*fy);
     float4 pos_x = (float4)(map[0], map[2], map[4], map[6]);
@@ -20,7 +20,7 @@ __kernel void warp(
     float2 pos_dst = (float2)(dot(ratio, pos_x), dot(ratio, pos_y));
 
     #else
-
+    //Perspective Warping
     float3 M1 = (float3)(map[0], map[1], map[2]);
     float3 M2 = (float3)(map[3], map[4], map[5]);
     float3 M3 = (float3)(map[6], map[7], map[8]);
