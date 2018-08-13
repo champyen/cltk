@@ -60,6 +60,8 @@ build log:
 cltk_example CPU log 12M takes 1318090 us  
 cltk_example GPU log 12M takes 78607 us  
 
+The demo image of example_image comes from:
+https://www.techradar.com/news/7-best-ps-vita-games-the-top-titles-to-grace-sonys-handheld
 
 # Other Resources
 If CLTK doesn't meet your requirements, you can check the following project (I got the list from CF4OCL's page)
