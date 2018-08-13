@@ -1,6 +1,7 @@
 #ifndef _CLTK_INTERNAL_H_
 #define _CLTK_INTERNAL_H_
 
+#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #include <CL/cl.h>
 #include <stdint.h>
 #include "cltk.h"

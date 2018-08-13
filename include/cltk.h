@@ -104,28 +104,29 @@ typedef struct {
 } cltk_image_desc;
 
 cltk_context cltk_context_create(void);
-void cltk_context_destroy(cltk_context);
-cltk_lib cltk_lib_load(cltk_context, char*, char*);
-cltk_lib cltk_lib_str_load(cltk_context, char*, char*);
-void cltk_lib_unload(cltk_lib);
+void cltk_context_destroy(cltk_context ctx);
+cltk_lib cltk_lib_load(cltk_context ctx, char *filename, char *cache_fname, char *buildopt);
+cltk_lib cltk_lib_bin_load(cltk_context ctx, char *bin, size_t bin_len);
+cltk_lib cltk_lib_str_load(cltk_context ctx, char *src_str, char *cache_fname, char *buildopt);
+void cltk_lib_unload(cltk_lib lib);
 
-cltk_func cltk_func_get(cltk_lib, char*);
-void cltk_func_release(cltk_func);
-void cltk_func_setndr(cltk_func, int, size_t*, size_t*);
-void cltk_func_setarg(cltk_func, int, void*);
-void cltk_func_exec(cltk_func);
-void cltk_func_async_exec(cltk_func);
-void cltk_func_wait(cltk_func);
+cltk_func cltk_func_get(cltk_lib lib, char *funcname);
+void cltk_func_release(cltk_func func);
+void cltk_func_setndr(cltk_func func, int dim, size_t* global_size, size_t *local_size);
+void cltk_func_setarg(cltk_func func, int arg_size, void *arg_ptr);
+void cltk_func_exec(cltk_func func);
+void cltk_func_async_exec(cltk_func func);
+void cltk_func_wait(cltk_func func);
 
-cltk_buffer cltk_buffer_alloc(cltk_context, int);
-void cltk_buffer_free(cltk_buffer);
-void *cltk_buffer_map(cltk_buffer);
-void cltk_buffer_unmap(cltk_buffer);
+cltk_buffer cltk_buffer_alloc(cltk_context ctx, int size);
+void cltk_buffer_free(cltk_buffer buf);
+void *cltk_buffer_map(cltk_buffer buf);
+void cltk_buffer_unmap(cltk_buffer buf);
 
-cltk_image cltk_image_alloc(cltk_context, cltk_image_desc*);
-void cltk_image_free(cltk_image);
-void *cltk_image_map(cltk_image, size_t*);
-void cltk_image_unmap(cltk_image);
+cltk_image cltk_image_alloc(cltk_context ctx, cltk_image_desc* desc);
+void cltk_image_free(cltk_image img);
+void *cltk_image_map(cltk_image img, size_t *ret_pitch);
+void cltk_image_unmap(cltk_image img);
 
 #ifdef __cplusplus
 }
