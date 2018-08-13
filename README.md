@@ -43,7 +43,8 @@ The main reason of not using OpenCL 2.x is the memory model. (And there are only
     * for Intel GPUs, you should install "beignet-opencl-icd"
     * for Nvidia GPUs, since nouveau hasn't support OpenCL yet, you have to install official Nvidia runtime. 
     * for runtime check and information, please install "clinfo" and launch clinfo command in your shell.
-3. $ make
+3. $ git submodule update --init
+   $ make
     * after this libcltk.so can be used
 4. $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:./
 5. $ ./cltk_test
@@ -59,6 +60,8 @@ build log:
 cltk_example CPU log 12M takes 1318090 us  
 cltk_example GPU log 12M takes 78607 us  
 
+The demo image of example_image comes from:
+https://www.techradar.com/news/7-best-ps-vita-games-the-top-titles-to-grace-sonys-handheld
 
 # Other Resources
 If CLTK doesn't meet your requirements, you can check the following project (I got the list from CF4OCL's page)
