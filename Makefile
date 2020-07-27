@@ -5,11 +5,11 @@ all: $(EXEC)
 CFLAGS  = -I include -I stb
 CFLAGS += -Wno-deprecated-declarations -fPIC
 
-LIB_LDFLAGS = -L /usr/lib/x86_64-linux-gnu/ -lOpenCL
+LIB_LDFLAGS = -L /usr/lib/x86_64-linux-gnu/ -l:libOpenCL.so.1
 LIB_OBJS = \
 	src/cltk.o
 
-LDFLAGS = -L. -lm -lcltk -lOpenCL
+LDFLAGS = -L. -lm -lcltk -l:libOpenCL.so.1
 OBJS = \
 	example/cltk_test.o
 
