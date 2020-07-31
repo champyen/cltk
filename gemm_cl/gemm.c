@@ -5,7 +5,6 @@
 #include <sys/time.h>
 #include <math.h>
 
-#include <CL/cl.h>
 #include "cltk.h"
 
 

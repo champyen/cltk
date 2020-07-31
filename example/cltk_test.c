@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <CL/cl.h>
 #include <sys/time.h>
 #include <math.h>
 #include "cltk.h"
@@ -49,7 +48,7 @@ void ocl_example(void)
     cl_command_queue queue = clCreateCommandQueue(ctx, devices[0], 0, &cl_err);
     cl_program program;
     {
-        FILE *fptr = fopen("example/test.cl", "r");
+        FILE *fptr = fopen("test.cl", "r");
         char *src_str = NULL;
         int src_len = fseek(fptr, 0L, SEEK_END);
         src_len = ftell(fptr);
@@ -124,7 +123,7 @@ void cltk_example(void)
     cltk_context ctx = cltk_context_create();
     cltk_buffer buf = cltk_buffer_alloc(ctx, 1024*sizeof(int));
     cltk_buffer buf2 = cltk_buffer_alloc(ctx, 1024*sizeof(int));
-    cltk_lib lib = cltk_lib_load(ctx, "example/test.cl", "example/test.bin", "");
+    cltk_lib lib = cltk_lib_load(ctx, "test.cl", "test.bin", "");
     cltk_func func = cltk_func_get(lib, "test");
     cltk_func func2 = cltk_func_get(lib, "test2");
     size_t gsize[3] = {1024, 0, 0 };

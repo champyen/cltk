@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <CL/cl.h>
 #include <sys/time.h>
 #include <math.h>
 #include "cltk.h"
@@ -13,11 +12,11 @@
 void cltk_image_example(void)
 {
     cltk_context ctx = cltk_context_create();
-    cltk_lib lib = cltk_lib_load(ctx, "example_image/image_test.cl", NULL, "");
+    cltk_lib lib = cltk_lib_load(ctx, "image_test.cl", NULL, "");
     cltk_func func = cltk_func_get(lib, "warp");
 
     int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load("example_image/PSV.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+    stbi_uc* pixels = stbi_load("PSV.jpg", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
     printf("w, h, c: %d %d %d\n", texWidth, texHeight, texChannels);
 
     cltk_buffer buf = cltk_buffer_alloc(ctx, 960*540*3);

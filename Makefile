@@ -1,15 +1,15 @@
 CC=clang
-EXEC = libcltk.so cltk_test cltk_image_test gemm
+EXEC = libcltk.so example/cltk_test example_image/cltk_image_test gemm_cl/gemm
 all: $(EXEC)
 
 CFLAGS  = -I include -I stb
 CFLAGS += -Wno-deprecated-declarations -fPIC
 
-LIB_LDFLAGS = -L /usr/lib/x86_64-linux-gnu/ -l:libOpenCL.so.1
+LIB_LDFLAGS = -L /usr/lib/x86_64-linux-gnu/ -lOpenCL
 LIB_OBJS = \
 	src/cltk.o
 
-LDFLAGS = -L. -lm -lcltk -l:libOpenCL.so.1
+LDFLAGS = -L. -lm -lcltk -lOpenCL
 OBJS = \
 	example/cltk_test.o
 
@@ -27,13 +27,13 @@ deps += $(IMG_OBJS:%.o=%.o.d)
 deps += $(GEMM_OBJS:%.o=%.o.d)
 deps += $(LIB_OBJS:%.o=%.o.d)
 
-cltk_test: $(OBJS) libcltk.so
+example/cltk_test: $(OBJS) libcltk.so
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-cltk_image_test: $(IMG_OBJS) libcltk.so
+example_image/cltk_image_test: $(IMG_OBJS) libcltk.so
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-gemm: $(GEMM_OBJS) libcltk.so
+gemm_cl/gemm: $(GEMM_OBJS) libcltk.so
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 libcltk.so: $(LIB_OBJS)

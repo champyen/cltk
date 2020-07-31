@@ -1,6 +1,10 @@
 #ifndef _CLTK_H_
 #define _CLTK_H_
 
+#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#define CL_TARGET_OPENCL_VERSION 120
+#include <CL/cl.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

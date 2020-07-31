@@ -2,6 +2,7 @@
 #define _CLTK_INTERNAL_H_
 
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
+#define CL_TARGET_OPENCL_VERSION 120
 #include <CL/cl.h>
 #include <stdint.h>
 #include "cltk.h"
