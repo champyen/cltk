@@ -168,7 +168,7 @@ cltk_lib cltk_lib_str_load(cltk_context ctx, char *src_str, char *cache_fname, c
         log_dump = (char*)calloc(1, log_len);
         CLTK_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, log_len, log_dump, NULL), ("%s %d\n", __FUNCTION__, __LINE__) );
         printf("build log: %s\n", log_dump);
-        
+
         if(cache_fname){
             size_t bin_size;
             size_t ret_size;
@@ -200,6 +200,9 @@ static int cltk_file_load(char *fname, char *mode, char **buf)
         *buf = (char*)calloc(1, flen+1);
         fread(*buf, 1, flen, fptr);
         fclose(fptr);
+    }else{
+        printf("%s open %s failed\n", __func__, fname);
+        exit(1);
     }
     return flen;
 }
