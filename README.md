@@ -42,14 +42,22 @@ The main reason of not using OpenCL 2.x is the memory model. (And there are only
     * for Nvidia GPUs, since nouveau hasn't support OpenCL yet, you have to install official Nvidia runtime.
     * for runtime check and information, please install "clinfo" and launch clinfo command in your shell.
 3. $ git submodule update --init
-4. for make
+4. building with 'MAKE'
+```
    $ make
     * after this libcltk.so can be used
    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD
-5. for cmake
+```
+5. building with 'CMAKE'
+```
    $ make build; cd build; cmake ..; make
-7. $ cd example; ./cltk_test
+```
+7. execute example
+```
+$ cd example; ./cltk_test
+```
 8. you can see similar output:
+```
 $ ./cltk_test
 000:001 001:002 002:003 003:004 004:005 005:006 006:007 007:008 008:009 009:00A 00A:00B 00B:00C 00C:00D 00D:00E 00E:00F 00F:010
 3F0:3F1 3F1:3F2 3F2:3F3 3F3:3F4 3F4:3F5 3F5:3F6 3F6:3F7 3F7:3F8 3F8:3F9 3F9:3FA 3FA:3FB 3FB:3FC 3FC:3FD 3FD:3FE 3FE:3FF 3FF:400
@@ -60,7 +68,7 @@ build log:
 3F0:3F1 3F1:3F2 3F2:3F3 3F3:3F4 3F4:3F5 3F5:3F6 3F6:3F7 3F7:3F8 3F8:3F9 3F9:3FA 3FA:3FB 3FB:3FC 3FC:3FD 3FD:3FE 3FE:3FF 3FF:400
 cltk_example CPU log 12M takes 1318090 us
 cltk_example GPU log 12M takes 78607 us
-
+```
 The demo image of example_image comes from:
 https://www.techradar.com/news/7-best-ps-vita-games-the-top-titles-to-grace-sonys-handheld
 
