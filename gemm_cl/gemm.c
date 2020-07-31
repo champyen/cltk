@@ -58,7 +58,7 @@ int main(void)
 {
     struct timeval s_time, e_time;
     cltk_context ctx = cltk_context_create();
-    cltk_lib lib = cltk_lib_load(ctx, "gemm_cl/gemm.cl", NULL, "");
+    cltk_lib lib = cltk_lib_load(ctx, "gemm.cl", NULL, "");
     cltk_buffer A_buf = cltk_buffer_alloc(ctx, MAT_M*MAT_K*sizeof(float));
     cltk_buffer B_buf = cltk_buffer_alloc(ctx, MAT_N*MAT_K*sizeof(float));
     cltk_buffer C0_buf = cltk_buffer_alloc(ctx, MAT_M*MAT_N*sizeof(float));
