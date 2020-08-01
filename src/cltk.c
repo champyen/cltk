@@ -200,9 +200,6 @@ static int cltk_file_load(char *fname, char *mode, char **buf)
         *buf = (char*)calloc(1, flen+1);
         fread(*buf, 1, flen, fptr);
         fclose(fptr);
-    }else{
-        printf("%s open %s failed\n", __func__, fname);
-        exit(1);
     }
     return flen;
 }
@@ -238,6 +235,9 @@ cltk_lib cltk_lib_load(cltk_context ctx, char *filename, char *cache_fname, char
         if(src_str){
             lib = cltk_lib_str_load(ctx, src_str, cache_fname, buildopt);
             free(src_str);
+        }else{
+            printf("%s: %s open failed\n", __func__, filename);
+            exit(1);
         }
         #endif
     }
