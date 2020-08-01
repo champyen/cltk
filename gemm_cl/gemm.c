@@ -24,19 +24,6 @@ void naive_gemm(float *a, float*b, float *c, int m, int n, int k)
     }
 }
 
-void naive_gemm2(float *a, float*b, float *c, int m, int n, int k)
-{
-    for(int y = 0; y < m; y++){
-        for(int x = 0; x < n; x++){
-            float sum = 0;
-            for(int z = 0; z < k; z++){
-                sum += (*(a + y*k + z)) * (*(b + x*k + z));
-            }
-            *(c + y*n + x) = sum;
-        }
-    }
-}
-
 #define MAT_M   256
 #define MAT_N   4096
 #define MAT_K   1024
@@ -46,7 +33,7 @@ void result_cmp(float *cpu, float *gpu, int m, int n)
     for(int y = 0; y < m; y++){
         for(int x = 0; x < n; x++){
             float val = fabsf(gpu[y*n + x] - cpu[y*n + x]);
-            if(val > 1.f){
+            if(val > 0.1f){
                 printf("%d %d min: %.2f %.2f\n", x, y, gpu[y*MAT_N + x], cpu[y*MAT_N + x]);
             }
         }
@@ -80,10 +67,10 @@ int main(void)
     float *b_buf = (float*)calloc(sizeof(float), MAT_N*MAT_K);
     float *c_buf = (float*)calloc(sizeof(float), MAT_M*MAT_N);
     for(int idx = 0; idx < MAT_M*MAT_K; idx++){
-        a_buf[idx] = (float)((rand()%65536)*(rand()%16))/65535.f;
+        a_buf[idx] = (float)((rand()%65536)*(rand()%16))/65536.f;
     }
     for(int idx = 0; idx < MAT_K*MAT_N; idx++){
-        b_buf[idx] = (float)((rand()%65536)*(rand()%16))/65535.f;
+        b_buf[idx] = (float)((rand()%65536)*(rand()%16))/65536.f;
     }
     naive_gemm(a_buf, b_buf, c_buf, MAT_M, MAT_N, MAT_K);
 
