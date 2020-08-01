@@ -1,7 +1,7 @@
 # cltk
 CLTK - OpenCL ToolKit
 
-Simply Your OpenCL program.
+Simplify Your OpenCL program.
 Glue-Code free OpenCL Programming!
 
 OpenCL provides the power of computing. However, even for a simple example, writing host code is boring and messy.
