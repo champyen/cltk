@@ -3,6 +3,16 @@
 #include <stdlib.h>
 #include "cltk_internal.h"
 
+#define CLTK_BUILD_CL( CLTK_CALL, msg ) { \
+    cl_int _cltk_err = CL_SUCCESS; \
+    CLTK_CALL; \
+    if(_cltk_err != CL_SUCCESS){ \
+        printf("error: %s\n", cltk_error_message(_cltk_err)); \
+        printf msg; \
+    } \
+}
+
+
 #define CLTK_CL( CLTK_CALL, msg ) { \
     cl_int _cltk_err = CL_SUCCESS; \
     CLTK_CALL; \
@@ -162,12 +172,17 @@ cltk_lib cltk_lib_str_load(cltk_context ctx, char *src_str, char *cache_fname, c
         lib = (cltk_lib)calloc(1, sizeof(_cltk_lib));
         lib->program = program;
         lib->ctx = ctx;
+
         CLTK_CL(_cltk_err = clGetContextInfo(ctx->context, CL_CONTEXT_DEVICES, 8*sizeof(cl_device_id), devices, NULL), ("%s %d\n", __FUNCTION__, __LINE__));
-        CLTK_CL(_cltk_err = clBuildProgram(lib->program, 1, devices, buildopt, NULL, NULL), ("%s %d\n", __FUNCTION__, __LINE__));
-        CLTK_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &log_len), ("%s %d\n", __FUNCTION__, __LINE__));
-        log_dump = (char*)calloc(1, log_len);
-        CLTK_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, log_len, log_dump, NULL), ("%s %d\n", __FUNCTION__, __LINE__) );
-        printf("build log: %s\n", log_dump);
+        cl_int build_err = CL_SUCCESS;
+        CLTK_BUILD_CL(build_err = clBuildProgram(lib->program, 1, devices, buildopt, NULL, NULL), ("%s %d\n", __FUNCTION__, __LINE__));
+        if(build_err != CL_SUCCESS){
+            CLTK_BUILD_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, 0, NULL, &log_len), ("%s %d\n", __FUNCTION__, __LINE__));
+            log_dump = (char*)calloc(1, log_len);
+            CLTK_BUILD_CL(_cltk_err =  clGetProgramBuildInfo(lib->program, devices[0], CL_PROGRAM_BUILD_LOG, log_len, log_dump, NULL), ("%s %d\n", __FUNCTION__, __LINE__) );
+            printf("build log: %s\n", log_dump);
+            exit(build_err);
+        }
 
         if(cache_fname){
             size_t bin_size;
