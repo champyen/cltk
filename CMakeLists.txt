@@ -13,5 +13,6 @@ add_library(${PROJECT_NAME} SHARED ${CLTK_SRC})
 target_link_libraries(${PROJECT_NAME} ${OPENCL_LIBRARIES})
 
 add_subdirectory(example)
+add_subdirectory(example_cpp)
 add_subdirectory(example_image)
 add_subdirectory(gemm_cl)
