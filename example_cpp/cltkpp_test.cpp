@@ -49,8 +49,7 @@ void cltkpp_example(void)
         free(hostbuf3);
 
         gettimeofday(&s_time, NULL);
-        func3->NDR(2, gsize3, NULL);
-        func3->exec(buf3, width, height);
+        func3->NDR(2, gsize3, NULL).exec(buf3, width, height);
         gettimeofday(&e_time, NULL);
         printf("%s GPU log 12M takes %ld us\n", __func__, (e_time.tv_sec - s_time.tv_sec)*1000000 + e_time.tv_usec - s_time.tv_usec);
     }
