@@ -1,7 +1,7 @@
 # cltk
 CLTK - OpenCL ToolKit
 
-Simply Your OpenCL program.
+Simplify Your OpenCL program.
 Glue-Code free OpenCL Programming!
 
 OpenCL provides the power of computing. However, even for a simple example, writing host code is boring and messy.
@@ -41,7 +41,10 @@ The main reason of not using OpenCL 2.x is the memory model. (And there are only
     * for Intel GPUs, you should install "beignet-opencl-icd" or "intel-opencl-icd"
     * for Nvidia GPUs, since nouveau hasn't support OpenCL yet, you have to install official Nvidia runtime.
     * for runtime check and information, please install "clinfo" and launch clinfo command in your shell.
-3. $ git submodule update --init
+3. get stb image files for image example
+```
+$ git submodule update --init
+```
 4. building with 'MAKE'
 ```
    $ make
