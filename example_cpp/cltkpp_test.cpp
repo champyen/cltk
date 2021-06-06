@@ -15,10 +15,8 @@ void cltkpp_example(void)
     shared_ptr<cltk::function> func2 = lib->getFunction("test2");
     size_t gsize[3] = {1024, 1, 1 };
 
-    func->NDR(1, gsize, NULL);
-    func->exec(buf);
-    func2->NDR(1, gsize, NULL);
-    func2->exec(buf2, buf);
+    func->NDR(1, gsize, NULL).exec(buf);
+    func2->NDR(1, gsize, NULL).exec(buf2, buf);
 
     int* hostbuf = (int*)buf->map();
     int* hostbuf2 = (int*)buf2->map();
