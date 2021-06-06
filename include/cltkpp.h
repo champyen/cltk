@@ -16,6 +16,38 @@ using namespace std;
 
 namespace cltk {
 
+class image {
+    public:
+        image(cltk_image i, cltk_image_desc* desc) {
+            img = i;
+            CLTKCPP_MSG("image alloc %p\n", img);
+        }
+        ~image() {
+            cltk_image_free(img);
+            CLTKCPP_MSG("image release %p\n", img);
+        }
+
+        void* map(size_t *retPitch) {
+            if(!mapped)
+                img_ptr = cltk_image_map(img, retPitch);
+            return img_ptr;
+        }
+
+        void unmap() {
+            if(mapped)
+                cltk_image_unmap(img);
+            img_ptr = NULL;
+        }
+
+        cltk_image& getImage() { return img; }
+
+    private:
+        bool mapped = false;
+        void *img_ptr = NULL;
+        cltk_image img;
+
+};
+
 class buffer {
     public:
         buffer(cltk_buffer b) {
@@ -75,6 +107,10 @@ class function {
             return *this;
         }
 
+        void exec(shared_ptr<image> &arg) {
+            cltk_func_setarg(func, sizeof(arg->getImage()), &(arg->getImage()));
+            cltk_func_exec(func);
+        }
         void exec(shared_ptr<buffer> &arg) {
             cltk_func_setarg(func, sizeof(arg->getBuffer()), &(arg->getBuffer()));
             cltk_func_exec(func);
@@ -86,6 +122,11 @@ class function {
             cltk_func_exec(func);
         }
 
+        template<typename... Ts>
+        void exec(shared_ptr<image> &arg, Ts&&... args) {
+            cltk_func_setarg(func, sizeof(arg->getImage()), &(arg->getImage()));
+            exec(std::forward<Ts>(args)...);
+        }
         template<typename... Ts>
         void exec(shared_ptr<buffer> &arg, Ts&&... args) {
             cltk_func_setarg(func, sizeof(arg->getBuffer()), &(arg->getBuffer()));
