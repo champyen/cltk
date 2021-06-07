@@ -61,16 +61,14 @@ bool sphere_hit(sphere* sp, ray* r, float t_min, float t_max, hit_record* rec)
 
 bool world_hit(ray* r, __global sphere *spl, int num_obj, float t_min, float t_max, hit_record* rec)
 {
-    hit_record temp_rec;
     bool hit_anything = false;
     float closest_so_far = t_max;
 
     for(int i = 0; i < num_obj; i++) {
         sphere so = *(spl + i);
-        if(sphere_hit(&so, r, t_min, closest_so_far, &temp_rec)) {
+        if(sphere_hit(&so, r, t_min, closest_so_far, rec)) {
             hit_anything = true;
-            closest_so_far = temp_rec.t;
-            *rec = temp_rec;
+            closest_so_far = rec->t;
         }
     }
 
