@@ -6,6 +6,7 @@
 #define STATE_TYPE  uint2
 #endif
 
+// comes from https://cas.ee.ic.ac.uk/people/dt10/research/rngs-gpu-mwc64x.html
 uint MWC64X(uint2* state)
 {
     enum { A=4294883355U};
@@ -21,6 +22,7 @@ uint MWC64X(uint2* state)
 float rand_float(STATE_TYPE* state)
 {
 #ifdef USE_ULONG_RAND
+    // comes from https://stackoverflow.com/questions/9912143/how-to-get-a-random-number-in-opencl
     *state = (*state * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
     return (float)(*state >> 16)/(float)0xFFFFFFFF;
 #else
