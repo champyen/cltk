@@ -1,3 +1,11 @@
+//#define USE_ULONG_RAND
+
+#ifdef USE_ULONG_RAND
+#define STATE_TYPE  ulong
+#else
+#define STATE_TYPE  uint2
+#endif
+
 uint MWC64X(uint2* state)
 {
     enum { A=4294883355U};
@@ -10,26 +18,23 @@ uint MWC64X(uint2* state)
     return res;                       // Return the next result
 }
 
-float rand_float(uint2* state)
+float rand_float(STATE_TYPE* state)
 {
-#if 0
-    //*state = ((uint)(*state))*4164903690UL + (uint)(*state >> 32);
-    //return (float)((uint)*state)*2.3283064365386962890625e-10f; // * (2^32-1)^-1
-
-    //*state = (*state * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-    //return (float)(*state >> 16)/(float)0xFFFFFFFF;
+#ifdef USE_ULONG_RAND
+    *state = (*state * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+    return (float)(*state >> 16)/(float)0xFFFFFFFF;
 #else
     return (float)MWC64X(state)/(float)(0xFFFFFFFF);
 #endif
 }
 
-float rand_float2(float min, float max, uint2* state)
+float rand_float2(float min, float max, STATE_TYPE* state)
 {
     // Returns a random real in [min,max).
     return min + (max-min)*rand_float(state);
 }
 
-float3 random_in_unit_sphere(uint2* state)
+float3 random_in_unit_sphere(STATE_TYPE* state)
 {
     float r = 1.0;
     while (true) {
@@ -43,7 +48,18 @@ float3 random_in_unit_sphere(uint2* state)
     }
 }
 
-float3 random_in_hemisphere(float3 normal, uint2* state) {
+float3 random_unit_vector(STATE_TYPE* state)
+{
+    float r = 1.0;
+    float3 p = (float3)(
+        rand_float2(-r, r, state),
+        rand_float2(-r, r, state),
+        rand_float2(-r, r, state)
+    );
+    return normalize(p);
+}
+
+float3 random_in_hemisphere(float3 normal, STATE_TYPE* state) {
     float3 in_unit_sphere = random_in_unit_sphere(state);
     if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
         return in_unit_sphere;
@@ -139,7 +155,7 @@ bool world_hit(ray* r, __global sphere *spl, int num_obj, float t_min, float t_m
     return hit_anything;
 }
 
-float3 ray_color(ray *r, __global sphere *spl, int num_obj, uint2 *state, int depth)
+float3 ray_color(ray *r, __global sphere *spl, int num_obj, STATE_TYPE* state, int depth)
 {
     float3 ret = 1.0f;
 
@@ -147,9 +163,9 @@ float3 ray_color(ray *r, __global sphere *spl, int num_obj, uint2 *state, int de
         hit_record rec;
         if(d == 0)
             ret *= 0.0f;
-        if (world_hit(r, spl, num_obj, 0.0f, INFINITY, &rec)) {
+        if (world_hit(r, spl, num_obj, 0.001f, INFINITY, &rec)) {
             ret *= 0.5f;
-            r->dir = rec.normal + random_in_unit_sphere(state);
+            r->dir = rec.normal + random_unit_vector(state);
             r->origin = rec.p;
         } else {
             float3 unit_direction = normalize(r->dir);
@@ -175,7 +191,11 @@ __kernel void diffuse(
     int i = get_global_id(0);
     int j = get_global_id(1);
 
+#ifdef USE_ULONG_RAND
+    ulong randseed = seed;
+#else
     uint2 randseed = (uint2)((uint)seed, (uint)(seed>>32));
+#endif
 
     int ofs = ((j * image_width) + i)*3;
 
@@ -192,7 +212,7 @@ __kernel void diffuse(
     }
     float scale = 1.0f/ (float)(samples_per_pixel);
 
-    uchar3 u8vec3 = convert_uchar3(255.999f * color * scale);
+    uchar3 u8vec3 = convert_uchar3(255.999f * sqrt(color * scale));
 
     buf[ofs] = u8vec3.s2;
     buf[ofs+1] = u8vec3.s1;
