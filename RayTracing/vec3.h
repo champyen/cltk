@@ -4,7 +4,30 @@
 #include <cmath>
 #include <iostream>
 
+// Usings
+using std::shared_ptr;
+using std::make_shared;
 using std::sqrt;
+
+// Constants
+
+const float pi = 3.1415926535897932385f;
+
+// Utility Functions
+
+inline float degrees_to_radians(float degrees) {
+    return degrees * pi / 180.0;
+}
+
+inline float random_float() {
+    // Returns a random real in [0,1).
+    return rand() / (RAND_MAX + 1.0);
+}
+
+inline float random_float(float min, float max) {
+    // Returns a random real in [min,max).
+    return min + (max-min)*random_float();
+}
 
 class vec3 {
     public:
@@ -45,6 +68,14 @@ class vec3 {
             return e.s[0]*e.s[0] + e.s[1]*e.s[1] + e.s[2]*e.s[2];
         }
 
+
+        inline static vec3 random() {
+            return vec3(random_float(), random_float(), random_float());
+        }
+
+        inline static vec3 random(float min, float max) {
+            return vec3(random_float(min,max), random_float(min,max), random_float(min,max));
+        }
     public:
         cl_float3 e;
 };
@@ -99,20 +130,5 @@ inline vec3 unit_vector(vec3 v) {
     return v / v.length();
 }
 
-// Usings
-
-using std::shared_ptr;
-using std::make_shared;
-using std::sqrt;
-
-// Constants
-
-const float pi = 3.1415926535897932385f;
-
-// Utility Functions
-
-inline float degrees_to_radians(float degrees) {
-    return degrees * pi / 180.0;
-}
 
 #endif

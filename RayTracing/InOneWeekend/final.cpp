@@ -83,7 +83,7 @@ typedef struct camera
     cl_float lens_radius;
 };
 
-void camera_example(void)
+void final_example(void)
 {
     srand(time(NULL));
     // Image
@@ -166,7 +166,7 @@ void camera_example(void)
 
 int main(void)
 {
-    camera_example();
+    final_example();
 
     return 0;
 }
