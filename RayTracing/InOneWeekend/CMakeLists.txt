@@ -17,6 +17,7 @@ set(MATERIAL_SRC material.cpp)
 set(DIELECTRIC_SRC dielectric.cpp)
 set(CAMERA_SRC camera.cpp)
 set(CAMERA2_SRC camera2.cpp)
+set(FINAL_SRC final.cpp)
 
 file(COPY bmp.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY vec3.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -31,6 +32,7 @@ file(COPY material.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY dielectric.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY camera.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY camera2.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY final.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(bmp ${BMP_SRC})
 target_link_libraries(bmp cltk ${OpenCL_LIBRARIES} "m")
@@ -67,3 +69,6 @@ target_link_libraries(camera cltk ${OpenCL_LIBRARIES} "m")
 
 add_executable(camera2 ${CAMERA2_SRC})
 target_link_libraries(camera2 cltk ${OpenCL_LIBRARIES} "m")
+
+add_executable(final ${FINAL_SRC})
+target_link_libraries(final cltk ${OpenCL_LIBRARIES} "m")
