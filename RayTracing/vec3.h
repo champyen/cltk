@@ -99,4 +99,20 @@ inline vec3 unit_vector(vec3 v) {
     return v / v.length();
 }
 
+// Usings
+
+using std::shared_ptr;
+using std::make_shared;
+using std::sqrt;
+
+// Constants
+
+const float pi = 3.1415926535897932385f;
+
+// Utility Functions
+
+inline float degrees_to_radians(float degrees) {
+    return degrees * pi / 180.0;
+}
+
 #endif

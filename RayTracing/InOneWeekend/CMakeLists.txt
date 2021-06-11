@@ -15,6 +15,7 @@ set(ANTI_ALIASING_SRC anti_aliasing.cpp)
 set(DIFFUSE_SRC diffuse.cpp)
 set(MATERIAL_SRC material.cpp)
 set(DIELECTRIC_SRC dielectric.cpp)
+set(CAMERA_SRC camera.cpp)
 
 file(COPY bmp.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY vec3.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -27,6 +28,7 @@ file(COPY diffuse.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY material.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY material.h DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY dielectric.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY camera.cl DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(bmp ${BMP_SRC})
 target_link_libraries(bmp cltk ${OpenCL_LIBRARIES} "m")
@@ -57,4 +59,7 @@ target_link_libraries(material cltk ${OpenCL_LIBRARIES} "m")
 
 add_executable(dielectric ${DIELECTRIC_SRC})
 target_link_libraries(dielectric cltk ${OpenCL_LIBRARIES} "m")
+
+add_executable(camera ${CAMERA_SRC})
+target_link_libraries(camera cltk ${OpenCL_LIBRARIES} "m")
 
