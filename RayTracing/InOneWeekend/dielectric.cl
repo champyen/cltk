@@ -114,7 +114,10 @@ typedef struct
     bool front_face;
 
     float3 albedo;
-    float fuzz;
+    union{
+        float fuzz;
+        float ir;
+    };
     uint meterial;
 } hit_record;
 
@@ -153,6 +156,44 @@ bool metal_scatter(ray* r_in, hit_record* rec, float3* attenuation, ray* scatter
     scattered->dir = reflected + rec->fuzz*random_in_unit_sphere(state);
     *attenuation = rec->albedo;
     return (dot(scattered->dir, rec->normal) > 0);
+}
+
+float3 refract(float3 uv, float3 n, float etai_over_etat) {
+    float cos_theta = fmin(dot(-uv, n), 1.0f);
+    float3 r_out_perp =  etai_over_etat * (uv + cos_theta*n);
+    float3 r_out_parallel = -sqrt(fabs(1.0f - dot(r_out_perp, r_out_perp))) * n;
+    return r_out_perp + r_out_parallel;
+}
+
+float reflectance(float cosine, float ref_idx)
+{
+    // Use Schlick's approximation for reflectance.
+    float r0 = (1-ref_idx) / (1+ref_idx);
+    r0 = r0*r0;
+    return r0 + (1-r0)*pow((1 - cosine),5);
+}
+
+bool dielectric_scatter(ray* r_in, hit_record* rec, float3* attenuation, ray* scattered, STATE_TYPE* state)
+{
+    float refraction_ratio = rec->front_face ? (1.0/rec->fuzz) : rec->fuzz;
+
+    float3 unit_direction = normalize(r_in->dir);
+
+    float cos_theta = fmin(dot(-unit_direction, rec->normal), 1.0f);
+    float sin_theta = sqrt(1.0 - cos_theta*cos_theta);
+
+    bool cannot_refract = refraction_ratio * sin_theta > 1.0;
+    float3 direction;
+
+    if (cannot_refract || reflectance(cos_theta, refraction_ratio) > rand_float(state))
+        direction = reflect(unit_direction, rec->normal);
+    else
+        direction = refract(unit_direction, rec->normal, refraction_ratio);
+
+    scattered->origin = rec->p;
+    scattered->dir = direction;
+    *attenuation = rec->albedo;
+    return true;
 }
 
 bool sphere_hit(sphere* sp, ray* r, float t_min, float t_max, hit_record* rec)
@@ -222,6 +263,9 @@ float3 ray_color(ray *r, __global sphere *spl, int num_obj, STATE_TYPE* state, i
                 case RT_M_LAMBERTIAN:
                     ret_scatter = lambertian_scatter(r, &rec, &attenuation, &scattered, state);
                     break;
+                case RT_M_DIELECTRIC:
+                    ret_scatter = dielectric_scatter(r, &rec, &attenuation, &scattered, state);
+                    break;
             }
             if(ret_scatter){
                 ret *= attenuation;
@@ -241,7 +285,7 @@ float3 ray_color(ray *r, __global sphere *spl, int num_obj, STATE_TYPE* state, i
     return ret;
 }
 
-__kernel void material(
+__kernel void dielectric(
     __global uchar* buf,
     __global sphere* spl,
     int num_sp,
