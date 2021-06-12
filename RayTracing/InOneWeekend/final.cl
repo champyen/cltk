@@ -63,7 +63,8 @@ float3 random_unit_vector(STATE_TYPE* state)
     return normalize(p);
 }
 
-float3 random_in_hemisphere(float3 normal, STATE_TYPE* state) {
+float3 random_in_hemisphere(float3 normal, STATE_TYPE* state)
+{
     float3 in_unit_sphere = random_in_unit_sphere(state);
     if (dot(in_unit_sphere, normal) > 0.0) // In the same hemisphere as the normal
         return in_unit_sphere;
@@ -71,7 +72,8 @@ float3 random_in_hemisphere(float3 normal, STATE_TYPE* state) {
         return -in_unit_sphere;
 }
 
-float3 random_in_unit_disk(STATE_TYPE* state) {
+float3 random_in_unit_disk(STATE_TYPE* state)
+{
     while (true) {
         float3 p = (float3)(rand_float2(-1.f,1.f, state), rand_float2(-1.f,1.f, state), 0.f);
         if (dot(p,p) >= 1) continue;
@@ -145,7 +147,8 @@ void set_face_normal(hit_record* rec, ray* r, float3* outward_normal)
     rec->normal = rec->front_face ? *outward_normal :-*outward_normal;
 }
 
-bool near_zero(float3 v)  {
+bool near_zero(float3 v)
+{
     // Return true if the vector is close to zero in all dimensions.
     float s = 1e-8;
     float3 absv = fabs(v);
@@ -176,7 +179,8 @@ bool metal_scatter(ray* r_in, hit_record* rec, float3* attenuation, ray* scatter
     return (dot(scattered->dir, rec->normal) > 0);
 }
 
-float3 refract(float3 uv, float3 n, float etai_over_etat) {
+float3 refract(float3 uv, float3 n, float etai_over_etat)
+{
     float cos_theta = fmin(dot(-uv, n), 1.0f);
     float3 r_out_perp =  etai_over_etat * (uv + cos_theta*n);
     float3 r_out_parallel = -sqrt(fabs(1.0f - dot(r_out_perp, r_out_perp))) * n;
@@ -193,7 +197,7 @@ float reflectance(float cosine, float ref_idx)
 
 bool dielectric_scatter(ray* r_in, hit_record* rec, float3* attenuation, ray* scattered, STATE_TYPE* state)
 {
-    float refraction_ratio = rec->front_face ? (1.0/rec->fuzz) : rec->fuzz;
+    float refraction_ratio = rec->front_face ? (1.0/rec->ir) : rec->ir;
 
     float3 unit_direction = normalize(r_in->dir);
 
@@ -308,6 +312,7 @@ __kernel void final(
     __global sphere* spl,
     int num_sp,
     camera cam,
+    int samples_per_pixel,
     ulong seed
 ){
     int image_width = get_global_size(0);
@@ -326,7 +331,6 @@ __kernel void final(
 
     float3 color = (float3)(0, 0, 0);
 
-    int samples_per_pixel = 100;
     for(int s = 0; s < samples_per_pixel; s++){
         float u = ((float)i + rand_float(&randseed))/ ((float)image_width-1.0);
         float v = ((float)j + rand_float(&randseed))/ ((float)image_height-1.0);

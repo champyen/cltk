@@ -18,13 +18,15 @@ namespace cltk {
 
 class image {
     public:
-        image(cltk_image i, cltk_image_desc* desc) {
+        image(cltk_image i, cltk_image_desc &idesc, string iname) {
             img = i;
-            CLTKCPP_MSG("image alloc %p\n", img);
+            desc = idesc;
+            name = iname;
+            CLTKCPP_MSG("image %s alloc %p\n", name.c_str(), img);
         }
         ~image() {
+            CLTKCPP_MSG("image %s release %p\n", name.c_str(), img);
             cltk_image_free(img);
-            CLTKCPP_MSG("image release %p\n", img);
         }
 
         void* map(size_t *retPitch) {
@@ -45,18 +47,20 @@ class image {
         bool mapped = false;
         void *img_ptr = NULL;
         cltk_image img;
-
+        cltk_image_desc desc;
+        string name;
 };
 
 class buffer {
     public:
-        buffer(cltk_buffer b) {
+        buffer(cltk_buffer b, string bname) {
             buf = b;
-            CLTKCPP_MSG("buffer alloc %p\n", buf);
+            name = bname;
+            CLTKCPP_MSG("buffer %s alloc %p\n", name.c_str(), buf);
         }
         ~buffer() {
+            CLTKCPP_MSG("buffer %s release %p\n", name.c_str(), buf);
             cltk_buffer_free(buf);
-            CLTKCPP_MSG("buffer release %p\n", buf);
         }
 
         void *map() {
@@ -77,17 +81,19 @@ class buffer {
         bool mapped = false;
         void *buf_ptr = NULL;
         cltk_buffer buf;
+        string name;
 };
 
 class function {
     public:
-        function(cltk_func f) {
+        function(cltk_func f, string fname) {
             func = f;
-            CLTKCPP_MSG("func alloc %p\n", func);
+            name = fname;
+            CLTKCPP_MSG("func %s alloc %p\n", name.c_str(), func);
         }
         ~function() {
+            CLTKCPP_MSG("func %s release %p\n", name.c_str(), func);
             cltk_func_release(func);
-            CLTKCPP_MSG("func release %p\n", func);
         }
 
         function& NDR(int n, size_t *gs, size_t *ls)
@@ -145,56 +151,66 @@ class function {
         size_t gsize[3] = {1};
         size_t lsize[3] = {1};
         int argIdx = 0;
+        string name;
 };
 
 class library {
     public:
-        library(cltk_lib l) {
+        library(cltk_lib l, string lname) {
             lib = l;
-            CLTKCPP_MSG("lib alloc %p", lib);
+            name = lname;
+            CLTKCPP_MSG("lib %s alloc %p\n", name.c_str(), lib);
         }
         ~library() {
+            CLTKCPP_MSG("lib %s release %p\n", name.c_str(), lib);
             cltk_lib_unload(lib);
-            CLTKCPP_MSG("lib release %p", lib);
         }
 
         shared_ptr<function> getFunction(string fname){
             cltk_func func = cltk_func_get(lib, (char*)fname.c_str());
-            return make_shared<function>(func);
+            return make_shared<function>(func, fname);
         }
 
     private:
         cltk_lib lib;
+        string name;
 };
 
 class context {
     public:
-        context() {
+        context(string cname = "") {
             ctx = cltk_context_create();
-            CLTKCPP_MSG("context alloc %p\n", ctx);
+            name = cname;
+            CLTKCPP_MSG("context %s alloc %p\n", name.c_str(), ctx);
         }
         ~context() {
+            CLTKCPP_MSG("context %s release %p\n", name.c_str(), ctx);
             cltk_context_destroy(ctx);
-            CLTKCPP_MSG("context release %p\n", ctx);
         }
 
         shared_ptr<library> getLibrary(string src, string cache = "", string buildOpt ="") {
             cltk_lib lib = cltk_lib_load(ctx, (char*)src.c_str(), (char*)cache.c_str(), (char*)buildOpt.c_str());
-            return make_shared<library>(lib);
+            return make_shared<library>(lib, src);
         }
 
         shared_ptr<library> getLibrary(string bin, size_t size){
             cltk_lib lib = cltk_lib_bin_load(ctx, (char*)bin.c_str(), size);
-            return make_shared<library>(lib);
+            return make_shared<library>(lib, bin);
         }
 
-        shared_ptr<buffer> allocBuffer(int size){
+        shared_ptr<buffer> allocBuffer(int size, string bname = ""){
             cltk_buffer buf = cltk_buffer_alloc(ctx, size);
-            return make_shared<buffer>(buf);
+            return make_shared<buffer>(buf, bname);
+        }
+
+        shared_ptr<image> allocImage(cltk_image_desc &img_desc, string iname = ""){
+            cltk_image img = cltk_image_alloc(ctx, &img_desc);
+            return make_shared<image>(img, img_desc, iname);
         }
 
     private:
         cltk_context ctx;
+        string name;
 };
 
 

@@ -175,7 +175,7 @@ float reflectance(float cosine, float ref_idx)
 
 bool dielectric_scatter(ray* r_in, hit_record* rec, float3* attenuation, ray* scattered, STATE_TYPE* state)
 {
-    float refraction_ratio = rec->front_face ? (1.0/rec->fuzz) : rec->fuzz;
+    float refraction_ratio = rec->front_face ? (1.0/rec->ir) : rec->ir;
 
     float3 unit_direction = normalize(r_in->dir);
 

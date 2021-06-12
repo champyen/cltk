@@ -4,6 +4,7 @@
 #include <math.h>
 #include <time.h>
 
+#define CLTKCPP_DEBUG
 #include "cltkpp.h"
 #include "bmp_fmt.h"
 #include "vec3.h"
@@ -92,8 +93,8 @@ void final_example(void)
     int image_height = static_cast<int>(image_width / aspect_ratio);;
 
     cltk::context ctx;
-    shared_ptr<cltk::buffer> buf = ctx.allocBuffer(image_width*image_width*3);
-    shared_ptr<cltk::buffer> sphere_list = ctx.allocBuffer(sizeof(sphere)*MAX_OBJS);
+    shared_ptr<cltk::buffer> buf = ctx.allocBuffer(image_width*image_width*3, "buffer");
+    shared_ptr<cltk::buffer> sphere_list = ctx.allocBuffer(sizeof(sphere)*MAX_OBJS, "sphere list");
     shared_ptr<cltk::library> lib = ctx.getLibrary("final.cl", "", "");
     shared_ptr<cltk::function> func = lib->getFunction("final");
 
@@ -110,18 +111,18 @@ void final_example(void)
     int num_sphere = 0;
     sphere *splist = (sphere *)sphere_list->map();
     splist[num_sphere++] = sphere(cl_float3{0,-1000,0}, 1000.f, cl_float3{0.5, 0.5, 0.5}, RT_M_LAMBERTIAN, 0);
-    for (int a = -7; a < 7; a++) {
-        for (int b = -7; b < 7; b++) {
+    for (int a = -9; a < 9; a++) {
+        for (int b = -9; b < 9; b++) {
             auto choose_mat = random_float();
             point3 center(a + 0.9*random_float(), 0.2, b + 0.9*random_float());
 
             if ((center - point3(4, 0.2, 0)).length() > 0.9) {
 
-                if (choose_mat < 0.4) {
+                if (choose_mat < 0.75) {
                     // diffuse
                     auto albedo = color::random() * color::random();
                     splist[num_sphere++] = sphere(center.e, 0.2, albedo.e, RT_M_LAMBERTIAN, 0);
-                } else if (choose_mat < 0.75) {
+                } else if (choose_mat < 0.9) {
                     // metal
                     auto albedo = color::random(0.5, 1);
                     auto fuzz = random_float(0, 0.5);
@@ -135,20 +136,18 @@ void final_example(void)
         }
     }
 
-
     splist[num_sphere++] = sphere(cl_float3{0, 1, 0}, 1.0, cl_float3{1, 1, 1}, RT_M_DIELECTRIC, 1.5);
     splist[num_sphere++] = sphere(cl_float3{-4, 1, 0}, 1.0, cl_float3{0.4, 0.2, 0.1}, RT_M_LAMBERTIAN, 0.f);
     splist[num_sphere++] = sphere(cl_float3{4, 1, 0}, 1.0, cl_float3{0.7, 0.6, 0.5}, RT_M_METAL, 0.f);
 
     sphere_list->unmap();
 
-    srandom(time(NULL));
-    unsigned long seed = random();
-
     // Render
     size_t gsize[3] = {image_width, image_height, 1 };
-    func->NDR(2, gsize, NULL).exec(buf, sphere_list, num_sphere, cam, seed);
-
+    int samples_per_pixel = 100;
+    unsigned long seed = random();
+    printf("samples per pixel - %d\n", samples_per_pixel);
+    func->NDR(2, gsize, NULL).exec(buf, sphere_list, num_sphere, cam, samples_per_pixel, seed);
     {
         int* hostbuf = (int*)buf->map();
 
